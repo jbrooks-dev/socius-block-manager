@@ -20,6 +20,8 @@ define('SOCIUS_BLOCK_MANAGER_PLUGIN_PATH', plugin_dir_path(__FILE__));
 
 class SociusBlockManager {
     
+    private $filtering_users = false; // Prevent recursive filtering
+    
     public function __construct() {
         add_action('init', array($this, 'init'));
         add_action('admin_menu', array($this, 'add_admin_menu'));
@@ -36,7 +38,15 @@ class SociusBlockManager {
         // Restrict Super Admin role assignment
         add_filter('editable_roles', array($this, 'filter_editable_roles'));
         add_action('user_profile_update_errors', array($this, 'prevent_super_admin_creation'), 10, 3);
-        add_action('admin_notices', array($this, 'super_admin_creation_notices'));
+        
+        // Hide Super Admin users from non-Super Admins
+        add_action('pre_get_users', array($this, 'filter_users_query'));
+        add_action('pre_user_query', array($this, 'filter_users_list_table'));
+        add_filter('views_users', array($this, 'filter_user_count'));
+        add_filter('wp_users_list_table_query_args', array($this, 'filter_list_table_args'));
+        add_filter('users_list_table_query_args', array($this, 'filter_list_table_args'));
+        add_action('load-users.php', array($this, 'debug_user_filtering'));
+        add_action('admin_init', array($this, 'restrict_super_admin_profile_access'));
         
         register_activation_hook(__FILE__, array($this, 'activate_plugin'));
     }
@@ -77,39 +87,106 @@ class SociusBlockManager {
      * Check if any Super Admin users exist
      */
     private function super_admin_exists() {
-        $super_admins = get_users(array(
-            'role' => 'super_admin',
-            'number' => 1,
-            'fields' => 'ID'
-        ));
+        // Prevent recursive calls during user filtering
+        if ($this->filtering_users) {
+            return false;
+        }
         
-        return !empty($super_admins);
+        $this->filtering_users = true;
+        
+        // Use direct database query to avoid capability checks
+        global $wpdb;
+        $count = $wpdb->get_var(
+            "SELECT COUNT(DISTINCT u.ID) 
+             FROM {$wpdb->users} u 
+             INNER JOIN {$wpdb->usermeta} um ON u.ID = um.user_id 
+             WHERE um.meta_key = '{$wpdb->prefix}capabilities' 
+             AND um.meta_value LIKE '%super_admin%'"
+        );
+        
+        $this->filtering_users = false;
+        
+        return intval($count) > 0;
     }
     
     /**
      * Get count of Super Admin users
      */
     private function get_super_admin_count() {
-        $super_admins = get_users(array(
-            'role' => 'super_admin',
-            'fields' => 'ID'
-        ));
+        // Prevent recursive calls during user filtering
+        if ($this->filtering_users) {
+            return 0;
+        }
         
-        return count($super_admins);
+        $this->filtering_users = true;
+        
+        // Use direct database query to avoid capability checks
+        global $wpdb;
+        $count = $wpdb->get_var(
+            "SELECT COUNT(DISTINCT u.ID) 
+             FROM {$wpdb->users} u 
+             INNER JOIN {$wpdb->usermeta} um ON u.ID = um.user_id 
+             WHERE um.meta_key = '{$wpdb->prefix}capabilities' 
+             AND um.meta_value LIKE '%super_admin%'"
+        );
+        
+        $this->filtering_users = false;
+        
+        return intval($count);
+    }
+    
+    /**
+     * Get Super Admin user IDs
+     */
+    private function get_super_admin_ids() {
+        // Prevent recursive calls during user filtering
+        if ($this->filtering_users) {
+            return array();
+        }
+        
+        $this->filtering_users = true;
+        
+        // Use direct database query to avoid capability checks
+        global $wpdb;
+        $user_ids = $wpdb->get_col(
+            "SELECT DISTINCT u.ID 
+             FROM {$wpdb->users} u 
+             INNER JOIN {$wpdb->usermeta} um ON u.ID = um.user_id 
+             WHERE um.meta_key = '{$wpdb->prefix}capabilities' 
+             AND um.meta_value LIKE '%super_admin%'"
+        );
+        
+        $this->filtering_users = false;
+        
+        return array_map('intval', $user_ids);
+    }
+    
+    /**
+     * Check if current user is Super Admin without triggering capability loops
+     */
+    private function is_current_user_super_admin() {
+        $current_user = wp_get_current_user();
+        if (!$current_user || !$current_user->ID) {
+            return false;
+        }
+        
+        // Get the correct capabilities meta key
+        global $wpdb;
+        $meta_key = $wpdb->prefix . 'capabilities';
+        
+        // Check directly in user meta to avoid capability loops
+        $capabilities = get_user_meta($current_user->ID, $meta_key, true);
+        return is_array($capabilities) && isset($capabilities['super_admin']);
     }
     
     /**
      * Filter available roles based on permissions
      */
     public function filter_editable_roles($roles) {
-        $current_user = wp_get_current_user();
-        
         // If Super Admin role exists in the roles array
         if (isset($roles['super_admin'])) {
-            // Only show Super Admin role to:
-            // 1. Current Super Admins (so they can manage existing Super Admins)
-            // 2. Administrators, but only if no Super Admin exists yet OR if Super Admin creation is explicitly allowed
-            if (!current_user_can('super_admin_access')) {
+            // Only show Super Admin role to current Super Admins or during initial setup
+            if (!$this->is_current_user_super_admin()) {
                 $super_admin_exists = $this->super_admin_exists();
                 $creation_allowed = get_option('socius_allow_super_admin_creation', false);
                 
@@ -126,15 +203,233 @@ class SociusBlockManager {
     }
     
     /**
+     * Filter users query to hide Super Admin users from non-Super Admins
+     */
+    public function filter_users_query($user_query) {
+        // Only filter on admin pages and prevent recursive filtering
+        if (!is_admin() || $this->filtering_users) {
+            return;
+        }
+        
+        // Only filter on users.php page or user lists
+        global $pagenow;
+        if ($pagenow !== 'users.php') {
+            return;
+        }
+        
+        // Don't filter for Super Admins - use a simpler check to avoid function call issues
+        $current_user = wp_get_current_user();
+        if ($current_user && $current_user->ID) {
+            global $wpdb;
+            $meta_key = $wpdb->prefix . 'capabilities';
+            $capabilities = get_user_meta($current_user->ID, $meta_key, true);
+            if (is_array($capabilities) && isset($capabilities['super_admin'])) {
+                return; // Current user is Super Admin, don't filter
+            }
+        }
+        
+        $this->filtering_users = true;
+        
+        // Get all Super Admin user IDs using direct query
+        $super_admin_ids = $this->get_super_admin_ids();
+        
+        if (!empty($super_admin_ids)) {
+            // Add exclude parameter to the user query
+            $existing_exclude = $user_query->get('exclude');
+            if (is_array($existing_exclude)) {
+                $exclude_ids = array_merge($existing_exclude, $super_admin_ids);
+            } else {
+                $exclude_ids = $super_admin_ids;
+            }
+            $user_query->set('exclude', $exclude_ids);
+        }
+        
+        $this->filtering_users = false;
+    }
+    
+    /**
+     * Additional filter for user list table - more aggressive approach
+     */
+    public function filter_users_list_table($user_search) {
+        global $pagenow;
+        
+        // Only filter on users.php page and prevent recursive filtering
+        if ($pagenow !== 'users.php' || $this->filtering_users) {
+            return;
+        }
+        
+        // Don't filter for Super Admins
+        $current_user = wp_get_current_user();
+        if ($current_user && $current_user->ID) {
+            global $wpdb;
+            $meta_key = $wpdb->prefix . 'capabilities';
+            $capabilities = get_user_meta($current_user->ID, $meta_key, true);
+            if (is_array($capabilities) && isset($capabilities['super_admin'])) {
+                return; // Current user is Super Admin, don't filter
+            }
+        }
+        
+        $this->filtering_users = true;
+        
+        global $wpdb;
+        
+        // Get all Super Admin user IDs using direct query
+        $super_admin_ids = $this->get_super_admin_ids();
+        
+        if (!empty($super_admin_ids)) {
+            $ids_string = implode(',', $super_admin_ids);
+            $user_search->query_where .= " AND {$wpdb->users}.ID NOT IN ({$ids_string})";
+        }
+        
+        $this->filtering_users = false;
+    }
+    
+    /**
+     * Debug user filtering to see what's happening
+     */
+    public function debug_user_filtering() {
+        // Don't debug for Super Admins
+        $current_user = wp_get_current_user();
+        if ($current_user && $current_user->ID) {
+            global $wpdb;
+            $meta_key = $wpdb->prefix . 'capabilities';
+            $capabilities = get_user_meta($current_user->ID, $meta_key, true);
+            if (is_array($capabilities) && isset($capabilities['super_admin'])) {
+                return; // Current user is Super Admin, don't debug
+            }
+        }
+        
+        // Get Super Admin IDs for debugging
+        // $super_admin_ids = $this->get_super_admin_ids();
+        // error_log('Socius Block Manager: Super Admin IDs to hide: ' . json_encode($super_admin_ids));
+        // error_log('Socius Block Manager: Current user ID: ' . get_current_user_id());
+        // error_log('Socius Block Manager: Current user capabilities: ' . json_encode($capabilities ?? 'none'));
+    }
+    
+    /**
+     * Filter the query arguments for the users list table
+     */
+    public function filter_list_table_args($args) {
+        // Don't filter for Super Admins
+        $current_user = wp_get_current_user();
+        if ($current_user && $current_user->ID) {
+            global $wpdb;
+            $meta_key = $wpdb->prefix . 'capabilities';
+            $capabilities = get_user_meta($current_user->ID, $meta_key, true);
+            if (is_array($capabilities) && isset($capabilities['super_admin'])) {
+                return $args; // Current user is Super Admin, don't filter
+            }
+        }
+        
+        // Get all Super Admin user IDs
+        $super_admin_ids = $this->get_super_admin_ids();
+        
+        if (!empty($super_admin_ids)) {
+            // Add exclude parameter to the args
+            if (isset($args['exclude']) && is_array($args['exclude'])) {
+                $args['exclude'] = array_merge($args['exclude'], $super_admin_ids);
+            } else {
+                $args['exclude'] = $super_admin_ids;
+            }
+            
+            // error_log('Socius Block Manager: Modified args with exclude: ' . json_encode($args['exclude']));
+        }
+        
+        return $args;
+    }
+    
+    /**
+     * Hide Super Admin users from user count
+     */
+    public function filter_user_count($views) {
+        // Prevent recursive filtering
+        if ($this->filtering_users) {
+            return $views;
+        }
+        
+        // Don't filter for Super Admins - use direct check
+        $current_user = wp_get_current_user();
+        if ($current_user && $current_user->ID) {
+            global $wpdb;
+            $meta_key = $wpdb->prefix . 'capabilities';
+            $capabilities = get_user_meta($current_user->ID, $meta_key, true);
+            if (is_array($capabilities) && isset($capabilities['super_admin'])) {
+                return $views; // Current user is Super Admin, don't filter
+            }
+        }
+        
+        // Get Super Admin count
+        $super_admin_count = $this->get_super_admin_count();
+        
+        if ($super_admin_count > 0) {
+            // Adjust the 'all' count
+            if (isset($views['all'])) {
+                preg_match('/\(([0-9,]+)\)/', $views['all'], $matches);
+                if (isset($matches[1])) {
+                    $current_count = intval(str_replace(',', '', $matches[1]));
+                    $new_count = $current_count - $super_admin_count;
+                    $views['all'] = preg_replace('/\([0-9,]+\)/', '(' . number_format_i18n($new_count) . ')', $views['all']);
+                }
+            }
+            
+            // Remove Super Admin role from views if it exists
+            unset($views['super_admin']);
+        }
+        
+        return $views;
+    }
+    
+    /**
+     * Prevent access to Super Admin user profiles by non-Super Admins
+     */
+    public function restrict_super_admin_profile_access() {
+        global $pagenow;
+        
+        // Check if we're on user-edit.php or profile.php
+        if (!in_array($pagenow, ['user-edit.php', 'profile.php']) || $this->filtering_users) {
+            return;
+        }
+        
+        // Don't restrict Super Admins - use direct check
+        $current_user = wp_get_current_user();
+        if ($current_user && $current_user->ID) {
+            global $wpdb;
+            $meta_key = $wpdb->prefix . 'capabilities';
+            $capabilities = get_user_meta($current_user->ID, $meta_key, true);
+            if (is_array($capabilities) && isset($capabilities['super_admin'])) {
+                return; // Current user is Super Admin, don't restrict
+            }
+        }
+        
+        // Get the user ID being edited
+        $editing_user_id = null;
+        if ($pagenow === 'user-edit.php' && isset($_GET['user_id'])) {
+            $editing_user_id = intval($_GET['user_id']);
+        } elseif ($pagenow === 'profile.php') {
+            $editing_user_id = get_current_user_id();
+        }
+        
+        if ($editing_user_id) {
+            $super_admin_ids = $this->get_super_admin_ids();
+            if (in_array($editing_user_id, $super_admin_ids)) {
+                // If trying to edit a Super Admin profile and not a Super Admin yourself
+                wp_die(
+                    __('You do not have permission to edit this user.', 'socius-block-manager'),
+                    __('Access Denied', 'socius-block-manager'),
+                    array('response' => 403)
+                );
+            }
+        }
+    }
+    
+    /**
      * Prevent Super Admin creation under certain conditions
      */
     public function prevent_super_admin_creation($errors, $update, $user) {
         // Only check if this is a role change to Super Admin
         if (isset($_POST['role']) && $_POST['role'] === 'super_admin') {
-            $current_user = wp_get_current_user();
-            
             // Allow if current user is Super Admin
-            if (current_user_can('super_admin_access')) {
+            if ($this->is_current_user_super_admin()) {
                 return;
             }
             
@@ -155,35 +450,10 @@ class SociusBlockManager {
             $max_super_admins = apply_filters('socius_max_super_admins', 3); // Default limit of 3
             $current_count = $this->get_super_admin_count();
             
-            if ($current_count >= $max_super_admins && !current_user_can('super_admin_access')) {
+            if ($current_count >= $max_super_admins && !$this->is_current_user_super_admin()) {
                 $errors->add('super_admin_limit', 
                     sprintf(__('Maximum number of Super Admin users (%d) has been reached.', 'socius-block-manager'), $max_super_admins)
                 );
-            }
-        }
-    }
-    
-    /**
-     * Display admin notices about Super Admin creation
-     */
-    public function super_admin_creation_notices() {
-        $screen = get_current_screen();
-        
-        // Only show on user edit/profile pages
-        if (!$screen || !in_array($screen->id, ['user-edit', 'profile', 'users'])) {
-            return;
-        }
-        
-        // Show notice to administrators about Super Admin restrictions
-        if (current_user_can('administrator') && !current_user_can('super_admin_access')) {
-            $super_admin_exists = $this->super_admin_exists();
-            $creation_allowed = get_option('socius_allow_super_admin_creation', false);
-            
-            if ($super_admin_exists && !$creation_allowed) {
-                echo '<div class="notice notice-info"><p>';
-                echo '<strong>' . __('Socius Block Manager:', 'socius-block-manager') . '</strong> ';
-                echo __('Super Admin role creation is restricted. Contact your existing Super Admin to create additional Super Admin accounts.', 'socius-block-manager');
-                echo '</p></div>';
             }
         }
     }
@@ -363,14 +633,28 @@ class SociusBlockManager {
     }
     
     private function get_super_admin_users() {
-        $super_admins = get_users(array(
-            'role' => 'super_admin',
-            'fields' => array('ID', 'display_name', 'user_email', 'user_login')
-        ));
+        // Prevent recursive calls during user filtering
+        if ($this->filtering_users) {
+            return array();
+        }
         
-        $users = array();
-        foreach ($super_admins as $user) {
-            $users[] = array(
+        $this->filtering_users = true;
+        
+        // Use direct database query to get Super Admin users
+        global $wpdb;
+        $users = $wpdb->get_results(
+            "SELECT DISTINCT u.ID, u.display_name, u.user_email, u.user_login 
+             FROM {$wpdb->users} u 
+             INNER JOIN {$wpdb->usermeta} um ON u.ID = um.user_id 
+             WHERE um.meta_key = '{$wpdb->prefix}capabilities' 
+             AND um.meta_value LIKE '%super_admin%'"
+        );
+        
+        $this->filtering_users = false;
+        
+        $result = array();
+        foreach ($users as $user) {
+            $result[] = array(
                 'ID' => $user->ID,
                 'display_name' => $user->display_name,
                 'user_email' => $user->user_email,
@@ -378,7 +662,7 @@ class SociusBlockManager {
             );
         }
         
-        return $users;
+        return $result;
     }
     
     private function scan_theme_blocks() {
@@ -515,7 +799,7 @@ class SociusBlockManager {
     
     public function filter_allowed_blocks($allowed_blocks, $block_editor_context) {
         // Only apply restrictions to non-super-admin users
-        if (current_user_can('super_admin_access')) {
+        if ($this->is_current_user_super_admin()) {
             return $allowed_blocks;
         }
         
