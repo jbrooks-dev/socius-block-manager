@@ -1,0 +1,107 @@
+{
+  "apiVersion": 2,
+  "name": "socius-pro-blocks/hero",
+  "title": "Hero Section",
+  "description": "Flexible hero section with multiple layout variations",
+  "category": "socius-pro-blocks",
+  "icon": "format-image",
+  "keywords": ["hero", "banner", "header", "carousel"],
+  "version": "1.0.0",
+  "supports": {
+    "align": ["wide", "full"],
+    "html": false
+  },
+  "attributes": {
+    "variation": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string",
+      "default": "Welcome to Our Site"
+    },
+    "subtitle": {
+      "type": "string",
+      "default": "Discover amazing products and services"
+    },
+    "description": {
+      "type": "string",
+      "default": ""
+    },
+    "imageUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "imageId": {
+      "type": "number",
+      "default": 0
+    },
+    "carouselImages": {
+      "type": "array",
+      "default": []
+    },
+    "buttons": {
+      "type": "array",
+      "default": [
+        {
+          "text": "Get Started",
+          "linkType": "external",
+          "url": "",
+          "style": "primary",
+          "openInNewWindow": false
+        }
+      ]
+    },
+    "showForm": {
+      "type": "boolean",
+      "default": false
+    },
+    "formShortcode": {
+      "type": "string",
+      "default": ""
+    },
+    "backgroundColor": {
+      "type": "string",
+      "default": "#1a1a1a"
+    },
+    "textColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "overlayOpacity": {
+      "type": "number",
+      "default": 0.5
+    }
+  },
+  "variations": [
+    {
+      "name": "single-image",
+      "title": "Single Image Hero",
+      "description": "Hero with single background image, title, subtitle, and buttons",
+      "attributes": {
+        "variation": "single-image"
+      },
+      "scope": ["block"]
+    },
+    {
+      "name": "carousel",
+      "title": "Carousel Hero",
+      "description": "Hero with image carousel, title, subtitle, and buttons",
+      "attributes": {
+        "variation": "carousel"
+      },
+      "scope": ["block"]
+    },
+    {
+      "name": "with-form",
+      "title": "Hero with Form",
+      "description": "Hero with image, content, and optional form shortcode",
+      "attributes": {
+        "variation": "with-form"
+      },
+      "scope": ["block"]
+    }
+  ],
+  "editorStyle": "file:./editor.css",
+  "style": "file:./style.css",
+  "viewScript": "file:./view.js"
+}

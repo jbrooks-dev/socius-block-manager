@@ -1,12 +1,97 @@
+import { useState, useEffect } from "@wordpress/element";
 import { __ } from "@wordpress/i18n";
-import { Button, Card, CardBody, CardHeader } from "@wordpress/components";
-import { blockDefault, users, cog } from "@wordpress/icons";
+import {
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  ToggleControl,
+  Notice,
+} from "@wordpress/components";
+import { blockDefault, users, cog, shield } from "@wordpress/icons";
 
 const SplashPage = () => {
-  const { canManageRestrictions, userRole } = window.sociusBlockManager || {};
+  const { canManageRestrictions, userRole, ajaxUrl, nonce } =
+    window.sociusBlockManager || {};
+  const [superAdminSettings, setSuperAdminSettings] = useState(null);
+  const [notice, setNotice] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const isSuperAdmin = userRole === "super_admin";
+
+  useEffect(() => {
+    if (isSuperAdmin) {
+      loadSuperAdminSettings();
+    }
+  }, [isSuperAdmin]);
+
+  const loadSuperAdminSettings = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("action", "get_super_admin_settings");
+      formData.append("nonce", nonce);
+
+      const response = await fetch(ajaxUrl, {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setSuperAdminSettings(result.data);
+      }
+    } catch (error) {
+      console.error("Error loading Super Admin settings:", error);
+    }
+  };
+
+  const toggleSuperAdminCreation = async (allowCreation) => {
+    setLoading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("action", "toggle_super_admin_creation");
+      formData.append("nonce", nonce);
+      formData.append("allow_creation", allowCreation ? "true" : "false");
+
+      const response = await fetch(ajaxUrl, {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setSuperAdminSettings((prev) => ({
+          ...prev,
+          creation_allowed: allowCreation,
+        }));
+        setNotice({ type: "success", message: result.data });
+      } else {
+        setNotice({
+          type: "error",
+          message:
+            result.data ||
+            __("Failed to update settings", "socius-block-manager"),
+        });
+      }
+    } catch (error) {
+      setNotice({
+        type: "error",
+        message: __("Error updating settings", "socius-block-manager"),
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const navigateToRestrictions = () => {
     window.location.href = `admin.php?page=socius-block-restrictions`;
+  };
+
+  const navigateToAvailableBlocks = () => {
+    window.location.href = `admin.php?page=socius-available-blocks`;
   };
 
   const features = [
@@ -34,6 +119,18 @@ const SplashPage = () => {
         "socius-block-manager"
       ),
     },
+    ...(isSuperAdmin
+      ? [
+          {
+            icon: shield,
+            title: __("Super Admin Controls", "socius-block-manager"),
+            description: __(
+              "Manage Super Admin role creation and permissions.",
+              "socius-block-manager"
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -53,6 +150,16 @@ const SplashPage = () => {
           </span>
         </div>
       </div>
+
+      {notice && (
+        <Notice
+          status={notice.type}
+          onRemove={() => setNotice(null)}
+          isDismissible
+        >
+          {notice.message}
+        </Notice>
+      )}
 
       <div className="socius-features-grid">
         {features.map((feature, index) => (
@@ -102,6 +209,26 @@ const SplashPage = () => {
                 </p>
               </div>
             )}
+          </CardBody>
+        </Card>
+
+        <Card className="socius-main-action-card">
+          <CardBody>
+            <h2>{__("Available Blocks", "socius-block-manager")}</h2>
+            <p>
+              {__(
+                "View all Socius Pro Blocks included with this plugin.",
+                "socius-block-manager"
+              )}
+            </p>
+
+            <Button
+              isPrimary
+              onClick={navigateToAvailableBlocks}
+              className="socius-primary-button"
+            >
+              {__("View Available Blocks", "socius-block-manager")}
+            </Button>
           </CardBody>
         </Card>
       </div>
@@ -194,10 +321,8 @@ const SplashPage = () => {
             1.0.0
           </div>
           <div className="stat-item">
-            <strong>
-              {__("Theme Blocks Directory:", "socius-block-manager")}
-            </strong>{" "}
-            /blocks/
+            <strong>{__("Blocks Directory:", "socius-block-manager")}</strong>{" "}
+            /plugin/blocks/
           </div>
         </div>
       </div>

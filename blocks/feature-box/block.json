@@ -1,0 +1,71 @@
+{
+  "apiVersion": 2,
+  "name": "socius-pro-blocks/feature-box",
+  "title": "Feature Box",
+  "description": "Highlight features or services with icon, title, and description",
+  "category": "socius-pro-blocks",
+  "icon": "star-filled",
+  "keywords": ["feature", "service", "icon", "box"],
+  "version": "1.0.0",
+  "supports": {
+    "align": true,
+    "html": false
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "default": "Feature Title"
+    },
+    "description": {
+      "type": "string",
+      "default": "Describe your amazing feature here. Make it compelling and clear."
+    },
+    "icon": {
+      "type": "string",
+      "default": "star-filled"
+    },
+    "variation": {
+      "type": "string",
+      "default": "icon-top"
+    },
+    "iconColor": {
+      "type": "string",
+      "default": "#2271b1"
+    },
+    "backgroundColor": {
+      "type": "string",
+      "default": "#ffffff"
+    }
+  },
+  "variations": [
+    {
+      "name": "icon-top",
+      "title": "Icon Top",
+      "description": "Icon positioned above the content",
+      "attributes": {
+        "variation": "icon-top"
+      },
+      "scope": ["block"]
+    },
+    {
+      "name": "icon-left",
+      "title": "Icon Left",
+      "description": "Icon positioned to the left of content",
+      "attributes": {
+        "variation": "icon-left"
+      },
+      "scope": ["block"]
+    },
+    {
+      "name": "icon-right",
+      "title": "Icon Right",
+      "description": "Icon positioned to the right of content",
+      "attributes": {
+        "variation": "icon-right"
+      },
+      "scope": ["block"]
+    }
+  ],
+  "editorStyle": "file:./editor.css",
+  "style": "file:./style.css"
+}

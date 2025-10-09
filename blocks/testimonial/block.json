@@ -1,0 +1,38 @@
+{
+  "apiVersion": 2,
+  "name": "socius-pro-blocks/testimonial",
+  "title": "Testimonial",
+  "description": "Display customer testimonials with name, role, and quote",
+  "category": "socius-pro-blocks",
+  "icon": "format-quote",
+  "keywords": ["testimonial", "quote", "review", "customer"],
+  "version": "1.0.0",
+  "supports": {
+    "align": true,
+    "html": false
+  },
+  "attributes": {
+    "quote": {
+      "type": "string",
+      "default": "This product has completely transformed our business. Highly recommended!"
+    },
+    "authorName": {
+      "type": "string",
+      "default": "John Doe"
+    },
+    "authorRole": {
+      "type": "string",
+      "default": "CEO, Company Name"
+    },
+    "imageUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "imageId": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "editorStyle": "file:./editor.css",
+  "style": "file:./style.css"
+}

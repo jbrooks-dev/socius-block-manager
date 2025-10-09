@@ -1,0 +1,95 @@
+/* Feature Box Block Styles */
+
+.socius-feature-box {
+    padding: 30px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    margin: 20px 0;
+    transition: all 0.3s ease;
+}
+
+.socius-feature-box:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.feature-box-content {
+    display: flex;
+    gap: 20px;
+}
+
+/* Icon Top Variation */
+.feature-box-content.feature-icon-top {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+/* Icon Left Variation */
+.feature-box-content.feature-icon-left {
+    flex-direction: row;
+    align-items: flex-start;
+}
+
+/* Icon Right Variation */
+.feature-box-content.feature-icon-right {
+    flex-direction: row-reverse;
+    align-items: flex-start;
+}
+
+.feature-icon {
+    flex-shrink: 0;
+}
+
+.feature-icon .dashicons {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+}
+
+.feature-text {
+    flex: 1;
+}
+
+.feature-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 15px 0;
+    color: #1e1e1e;
+    line-height: 1.3;
+}
+
+.feature-description {
+    font-size: 1rem;
+    margin: 0;
+    color: #646970;
+    line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .socius-feature-box {
+        padding: 20px;
+    }
+    
+    .feature-box-content.feature-icon-left,
+    .feature-box-content.feature-icon-right {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .feature-icon .dashicons {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+    }
+    
+    .feature-title {
+        font-size: 1.25rem;
+    }
+    
+    .feature-description {
+        font-size: 0.95rem;
+    }
+}

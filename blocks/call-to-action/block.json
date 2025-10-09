@@ -1,0 +1,42 @@
+{
+  "apiVersion": 2,
+  "name": "socius-pro-blocks/call-to-action",
+  "title": "Call to Action",
+  "description": "A simple call to action block with heading, text, and button",
+  "category": "socius-pro-blocks",
+  "icon": "megaphone",
+  "keywords": ["cta", "button", "action", "call"],
+  "version": "1.0.0",
+  "supports": {
+    "align": ["wide", "full"],
+    "html": false
+  },
+  "attributes": {
+    "heading": {
+      "type": "string",
+      "default": "Ready to Get Started?"
+    },
+    "text": {
+      "type": "string",
+      "default": "Join thousands of satisfied customers today."
+    },
+    "buttonText": {
+      "type": "string",
+      "default": "Get Started"
+    },
+    "buttonUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "backgroundColor": {
+      "type": "string",
+      "default": "#2271b1"
+    },
+    "textColor": {
+      "type": "string",
+      "default": "#ffffff"
+    }
+  },
+  "editorStyle": "file:./editor.css",
+  "style": "file:./style.css"
+}

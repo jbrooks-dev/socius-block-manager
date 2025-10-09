@@ -1,0 +1,13 @@
+/* Call to Action Block Editor Styles */
+
+.wp-block-socius-pro-blocks-call-to-action {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+}
+
+.socius-cta-block .socius-cta-heading:focus,
+.socius-cta-block .socius-cta-text:focus {
+    outline: 2px solid #007cba;
+    outline-offset: 2px;
+    border-radius: 4px;
+}

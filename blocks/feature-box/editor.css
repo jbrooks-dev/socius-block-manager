@@ -1,0 +1,17 @@
+/* Feature Box Block Editor Styles */
+
+.wp-block-socius-pro-blocks-feature-box {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+}
+
+.socius-feature-box .feature-title:focus,
+.socius-feature-box .feature-description:focus {
+    outline: 2px solid #007cba;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+.socius-feature-box .feature-icon .dashicons {
+    display: inline-block;
+}

@@ -1,0 +1,41 @@
+/* Hero Block Editor Styles */
+
+.wp-block-socius-pro-blocks-hero {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+}
+
+.socius-hero-block .hero-title:focus,
+.socius-hero-block .hero-subtitle:focus,
+.socius-hero-block .hero-description:focus {
+    outline: 2px solid #007cba;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* Button Group Editor Styles */
+.button-group-editor {
+    margin-top: 15px;
+}
+
+.button-group-editor .components-button.has-icon {
+    min-width: auto;
+}
+
+/* Carousel Editor Styles */
+.hero-carousel .carousel-nav {
+    pointer-events: auto;
+}
+
+/* Form Preview Styles */
+.hero-form-placeholder {
+    background: #f8f9fa;
+    border: 2px dashed #ddd;
+    padding: 30px;
+    text-align: center;
+    color: #646970;
+}
+
+.components-button div {
+  text-wrap-mode: wrap;
+}

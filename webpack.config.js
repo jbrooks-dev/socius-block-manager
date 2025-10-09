@@ -6,10 +6,13 @@ module.exports = (env, argv) => {
   const isProduction = argv.mode === "production";
 
   return {
-    entry: "./src/index.js",
+    entry: {
+      index: "./src/index.js",
+      blocks: "./src/blocks.js", // NEW ENTRY POINT
+    },
     output: {
       path: path.resolve(__dirname, "build"),
-      filename: "index.js",
+      filename: "[name].js",
       clean: true,
     },
     module: {

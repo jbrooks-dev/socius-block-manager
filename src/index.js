@@ -2,11 +2,14 @@ import { render } from "@wordpress/element";
 import { __ } from "@wordpress/i18n";
 import SplashPage from "./components/SplashPage";
 import BlockRestrictionsPage from "./components/BlockRestrictionsPage";
+import BlockListPage from "./components/BlockListPage";
+import AvailableBlocksPage from "./components/AvailableBlocksPage";
 import "./style.css";
 
 const App = () => {
   const { currentPage, canManageRestrictions } =
     window.sociusBlockManager || {};
+  console.log("currentPage", currentPage);
 
   // Render appropriate component based on current page
   switch (currentPage) {
@@ -25,6 +28,12 @@ const App = () => {
         );
       }
       return <BlockRestrictionsPage />;
+
+    case "socius-block-list":
+      return <BlockListPage />;
+
+    case "socius-available-blocks":
+      return <AvailableBlocksPage />;
 
     case "socius-block-manager":
     default:
@@ -45,3 +54,22 @@ const restrictionsElement = document.getElementById(
 if (restrictionsElement) {
   render(<App />, restrictionsElement);
 }
+
+//Test Render restrictions page
+const listElement = document.getElementById(
+  "socius-block-manager-list"
+);
+if (listElement) {
+  render(<App />, listElement);
+}
+
+
+
+// Render available blocks page
+// const availableElement = document.getElementById(
+//   "socius-block-manager-available"
+// );
+// console.log("attemping render available", availableElement);
+// if (availableElement) {
+//   render(<App />, availableElement);
+// }

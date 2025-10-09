@@ -1,0 +1,14 @@
+/* Testimonial Block Editor Styles */
+
+.wp-block-socius-pro-blocks-testimonial {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+}
+
+.socius-testimonial-block .testimonial-quote:focus,
+.socius-testimonial-block .testimonial-author-name:focus,
+.socius-testimonial-block .testimonial-author-role:focus {
+    outline: 2px solid #007cba;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
