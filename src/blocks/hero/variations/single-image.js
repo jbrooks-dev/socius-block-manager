@@ -1,3 +1,4 @@
+// src/blocks/hero/variations/single-image.js
 import { __ } from "@wordpress/i18n";
 import {
   InspectorControls,
@@ -12,7 +13,10 @@ import {
   RangeControl,
   ResponsiveWrapper,
 } from "@wordpress/components";
-import { ButtonGroup, ButtonGroupDisplay } from "../components/button-group";
+import {
+  ButtonGroup,
+  ButtonGroupDisplay,
+} from "../../../components/ButtonGroup";
 
 export const SingleImageEdit = ({ attributes, setAttributes }) => {
   const {

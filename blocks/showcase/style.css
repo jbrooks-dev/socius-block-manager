@@ -1,0 +1,266 @@
+/* Showcase Block Styles */
+
+.socius-showcase-block {
+    position: relative;
+    width: 100%;
+    margin: 0;
+}
+
+.showcase-background {
+    position: relative;
+    width: 100%;
+    min-height: 600px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.showcase-overlay {
+    position: relative;
+    width: 100%;
+    min-height: 600px;
+    display: flex;
+}
+
+.showcase-content-wrapper {
+    width: 100%;
+    display: flex;
+    padding: 80px 40px;
+}
+
+.showcase-content {
+    max-width: 700px;
+}
+
+/* Eyebrow Styles */
+.showcase-eyebrow {
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 20px 0;
+    opacity: 0.9;
+}
+
+/* Title Styles */
+.showcase-title {
+    font-size: 3rem;
+    font-weight: 700;
+    margin: 0 0 20px 0;
+    line-height: 1.2;
+}
+
+/* Subtitle Styles */
+.showcase-subtitle {
+    font-size: 1.5rem;
+    font-weight: 400;
+    margin: 0 0 25px 0;
+    line-height: 1.4;
+    opacity: 0.95;
+}
+
+/* Content Text Styles */
+.showcase-text {
+    font-size: 1.125rem;
+    line-height: 1.6;
+    margin: 0 0 30px 0;
+}
+
+.showcase-text p {
+    margin: 0 0 15px 0;
+}
+
+.showcase-text p:last-child {
+    margin-bottom: 0;
+}
+
+/* Button Group Styles */
+.showcase-button-group {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-top: 30px;
+}
+
+/* Horizontal Alignment */
+.socius-showcase-block.align-h-left .showcase-content-wrapper {
+    justify-content: flex-start;
+}
+
+.socius-showcase-block.align-h-left .showcase-content {
+    text-align: left;
+}
+
+.socius-showcase-block.align-h-left .showcase-button-group {
+    justify-content: flex-start;
+}
+
+.socius-showcase-block.align-h-center .showcase-content-wrapper {
+    justify-content: center;
+}
+
+.socius-showcase-block.align-h-center .showcase-content {
+    text-align: center;
+}
+
+.socius-showcase-block.align-h-center .showcase-button-group {
+    justify-content: center;
+}
+
+.socius-showcase-block.align-h-right .showcase-content-wrapper {
+    justify-content: flex-end;
+}
+
+.socius-showcase-block.align-h-right .showcase-content {
+    text-align: right;
+}
+
+.socius-showcase-block.align-h-right .showcase-button-group {
+    justify-content: flex-end;
+}
+
+/* Vertical Alignment */
+.socius-showcase-block.align-v-top .showcase-overlay {
+    align-items: flex-start;
+}
+
+.socius-showcase-block.align-v-middle .showcase-overlay {
+    align-items: center;
+}
+
+.socius-showcase-block.align-v-bottom .showcase-overlay {
+    align-items: flex-end;
+}
+
+/* Button Styles (inheriting from hero styles) */
+.showcase-button-group .hero-button {
+    display: inline-block;
+    padding: 15px 35px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.showcase-button-group .hero-button-primary {
+    background: #2271b1;
+    color: #ffffff;
+    border-color: #2271b1;
+}
+
+.showcase-button-group .hero-button-primary:hover {
+    background: #135e96;
+    border-color: #135e96;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(34, 113, 177, 0.3);
+}
+
+.showcase-button-group .hero-button-secondary {
+    background: rgba(255, 255, 255, 0.2);
+    color: inherit;
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.showcase-button-group .hero-button-secondary:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.8);
+    transform: translateY(-2px);
+}
+
+.showcase-button-group .hero-button-outline {
+    background: transparent;
+    color: inherit;
+    border-color: currentColor;
+}
+
+.showcase-button-group .hero-button-outline:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+/* Responsive Styles */
+@media (max-width: 1024px) {
+    .showcase-content {
+        max-width: 600px;
+    }
+    
+    .showcase-title {
+        font-size: 2.5rem;
+    }
+    
+    .showcase-subtitle {
+        font-size: 1.25rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .showcase-background,
+    .showcase-overlay {
+        min-height: 500px;
+    }
+    
+    .showcase-content-wrapper {
+        padding: 60px 20px;
+    }
+    
+    .showcase-content {
+        max-width: 100%;
+    }
+    
+    .showcase-title {
+        font-size: 2rem;
+    }
+    
+    .showcase-subtitle {
+        font-size: 1.125rem;
+    }
+    
+    .showcase-text {
+        font-size: 1rem;
+    }
+    
+    .showcase-button-group .hero-button {
+        padding: 12px 28px;
+        font-size: 1rem;
+    }
+    
+    /* Force center alignment on mobile for better readability */
+    .socius-showcase-block .showcase-content-wrapper {
+        justify-content: center;
+    }
+    
+    .socius-showcase-block .showcase-content {
+        text-align: center;
+    }
+    
+    .socius-showcase-block .showcase-button-group {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .showcase-background,
+    .showcase-overlay {
+        min-height: 400px;
+    }
+    
+    .showcase-title {
+        font-size: 1.75rem;
+    }
+    
+    .showcase-eyebrow {
+        font-size: 0.75rem;
+    }
+    
+    .showcase-button-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .showcase-button-group .hero-button {
+        width: 100%;
+    }
+}

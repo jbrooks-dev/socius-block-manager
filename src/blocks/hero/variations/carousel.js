@@ -1,3 +1,4 @@
+// src/blocks/hero/variations/carousel.js
 import { __ } from "@wordpress/i18n";
 import {
   InspectorControls,
@@ -6,15 +7,13 @@ import {
   MediaUploadCheck,
   PanelColorSettings,
 } from "@wordpress/block-editor";
-import {
-  PanelBody,
-  Button,
-  RangeControl,
-  IconButton,
-} from "@wordpress/components";
+import { PanelBody, Button, RangeControl } from "@wordpress/components";
 import { useState } from "@wordpress/element";
-import { chevronLeft, chevronRight, trash } from "@wordpress/icons";
-import { ButtonGroup, ButtonGroupDisplay } from "../components/button-group";
+import { trash } from "@wordpress/icons";
+import {
+  ButtonGroup,
+  ButtonGroupDisplay,
+} from "../../../components/ButtonGroup";
 
 export const CarouselEdit = ({ attributes, setAttributes }) => {
   const {

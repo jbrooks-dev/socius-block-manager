@@ -1,0 +1,74 @@
+{
+  "apiVersion": 2,
+  "name": "socius-pro-blocks/showcase",
+  "title": "Showcase",
+  "description": "Full-width showcase section with background image and flexible content positioning",
+  "category": "socius-pro-blocks",
+  "icon": "image-alt",
+  "keywords": ["showcase", "feature", "banner", "image"],
+  "version": "1.0.0",
+  "supports": {
+    "align": ["wide", "full"],
+    "html": false
+  },
+  "attributes": {
+    "eyebrow": {
+      "type": "string",
+      "default": "Featured"
+    },
+    "title": {
+      "type": "string",
+      "default": "Showcase Your Best Work"
+    },
+    "subtitle": {
+      "type": "string",
+      "default": "Tell your story with style"
+    },
+    "content": {
+      "type": "string",
+      "default": "Add compelling content here to describe your showcase. This WYSIWYG field allows you to format your text exactly how you want it."
+    },
+    "imageUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "imageId": {
+      "type": "number",
+      "default": 0
+    },
+    "buttons": {
+      "type": "array",
+      "default": [
+        {
+          "text": "Learn More",
+          "linkType": "external",
+          "url": "",
+          "style": "primary",
+          "openInNewWindow": false
+        }
+      ]
+    },
+    "horizontalAlign": {
+      "type": "string",
+      "default": "left"
+    },
+    "verticalAlign": {
+      "type": "string",
+      "default": "middle"
+    },
+    "backgroundColor": {
+      "type": "string",
+      "default": "#1a1a1a"
+    },
+    "textColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "overlayOpacity": {
+      "type": "number",
+      "default": 0.5
+    }
+  },
+  "editorStyle": "file:./editor.css",
+  "style": "file:./style.css"
+}

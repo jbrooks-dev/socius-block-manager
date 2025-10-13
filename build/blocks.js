@@ -569,218 +569,6 @@ const getAllowedVariations = blockName => {
 
 /***/ }),
 
-/***/ "./src/blocks/hero/components/button-group.js":
-/*!****************************************************!*\
-  !*** ./src/blocks/hero/components/button-group.js ***!
-  \****************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   ButtonGroup: () => (/* binding */ ButtonGroup),
-/* harmony export */   ButtonGroupDisplay: () => (/* binding */ ButtonGroupDisplay)
-/* harmony export */ });
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
-/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
-/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _wordpress_icons__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/icons */ "./node_modules/@wordpress/icons/build-module/library/plus.js");
-/* harmony import */ var _wordpress_icons__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/icons */ "./node_modules/@wordpress/icons/build-module/library/trash.js");
-/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
-/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_5__);
-
-
-
-
-
-const ButtonGroup = ({
-  buttons,
-  onChange,
-  maxButtons = 3
-}) => {
-  const [pages, setPages] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_5__.useState)([]);
-  const [posts, setPosts] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_5__.useState)([]);
-  const [loading, setLoading] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_5__.useState)(true);
-
-  // Fetch pages and posts on component mount
-  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_5__.useEffect)(() => {
-    fetchPagesAndPosts();
-  }, []);
-  const fetchPagesAndPosts = async () => {
-    try {
-      // Fetch pages
-      const pagesResponse = await fetch("/wp-json/wp/v2/pages?per_page=100&orderby=title&order=asc");
-      const pagesData = await pagesResponse.json();
-      setPages(pagesData.map(page => ({
-        label: page.title.rendered,
-        value: page.link
-      })));
-
-      // Fetch posts
-      const postsResponse = await fetch("/wp-json/wp/v2/posts?per_page=100&orderby=date&order=desc");
-      const postsData = await postsResponse.json();
-      setPosts(postsData.map(post => ({
-        label: post.title.rendered,
-        value: post.link
-      })));
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching pages/posts:", error);
-      setLoading(false);
-    }
-  };
-  const addButton = () => {
-    if (buttons.length < maxButtons) {
-      onChange([...buttons, {
-        text: "New Button",
-        linkType: "external",
-        url: "",
-        style: "secondary",
-        openInNewWindow: false
-      }]);
-    }
-  };
-  const updateButton = (index, field, value) => {
-    const newButtons = [...buttons];
-    newButtons[index][field] = value;
-
-    // If changing link type, reset the URL
-    if (field === "linkType") {
-      newButtons[index].url = "";
-    }
-    onChange(newButtons);
-  };
-  const removeButton = index => {
-    const newButtons = buttons.filter((_, i) => i !== index);
-    onChange(newButtons.length > 0 ? newButtons : [{
-      text: "Button",
-      linkType: "external",
-      url: "",
-      style: "primary",
-      openInNewWindow: false
-    }]);
-  };
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "button-group-editor"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    style: {
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      marginBottom: "10px"
-    }
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Buttons", "socius-block-manager")), buttons.length < maxButtons && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.Button, {
-    icon: _wordpress_icons__WEBPACK_IMPORTED_MODULE_3__["default"],
-    isSmall: true,
-    onClick: addButton
-  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Add Button", "socius-block-manager"))), buttons.map((button, index) => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    key: index,
-    style: {
-      marginBottom: "15px",
-      padding: "15px",
-      border: "1px solid #ddd",
-      borderRadius: "4px",
-      background: "#f9f9f9"
-    }
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    style: {
-      display: "flex",
-      justifyContent: "space-between",
-      marginBottom: "10px"
-    }
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Button", "socius-block-manager"), " ", index + 1), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.Button, {
-    icon: _wordpress_icons__WEBPACK_IMPORTED_MODULE_4__["default"],
-    isDestructive: true,
-    isSmall: true,
-    onClick: () => removeButton(index),
-    disabled: buttons.length === 1
-  })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.TextControl, {
-    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Button Text", "socius-block-manager"),
-    value: button.text,
-    onChange: value => updateButton(index, "text", value)
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.SelectControl, {
-    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Link Type", "socius-block-manager"),
-    value: button.linkType || "external",
-    options: [{
-      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("External URL", "socius-block-manager"),
-      value: "external"
-    }, {
-      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Internal Page", "socius-block-manager"),
-      value: "page"
-    }, {
-      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Internal Post", "socius-block-manager"),
-      value: "post"
-    }],
-    onChange: value => updateButton(index, "linkType", value)
-  }), button.linkType === "external" && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.TextControl, {
-    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("External URL", "socius-block-manager"),
-    value: button.url,
-    onChange: value => updateButton(index, "url", value),
-    placeholder: "https://example.com",
-    help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Enter the full URL including https://", "socius-block-manager")
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.CheckboxControl, {
-    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Open in new window", "socius-block-manager"),
-    checked: button.openInNewWindow || false,
-    onChange: value => updateButton(index, "openInNewWindow", value)
-  })), button.linkType === "page" && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.SelectControl, {
-    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Select Page", "socius-block-manager"),
-    value: button.url,
-    options: [{
-      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("-- Select a Page --", "socius-block-manager"),
-      value: ""
-    }, ...pages],
-    onChange: value => updateButton(index, "url", value),
-    disabled: loading
-  }), button.linkType === "post" && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.SelectControl, {
-    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Select Post", "socius-block-manager"),
-    value: button.url,
-    options: [{
-      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("-- Select a Post --", "socius-block-manager"),
-      value: ""
-    }, ...posts],
-    onChange: value => updateButton(index, "url", value),
-    disabled: loading
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.SelectControl, {
-    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Button Style", "socius-block-manager"),
-    value: button.style,
-    options: [{
-      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Primary", "socius-block-manager"),
-      value: "primary"
-    }, {
-      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Secondary", "socius-block-manager"),
-      value: "secondary"
-    }, {
-      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Outline", "socius-block-manager"),
-      value: "outline"
-    }],
-    onChange: value => updateButton(index, "style", value)
-  }))));
-};
-const ButtonGroupDisplay = ({
-  buttons
-}) => {
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "hero-button-group"
-  }, buttons.map((button, index) => {
-    const target = button.linkType === "external" && button.openInNewWindow ? "_blank" : "_self";
-    const rel = button.linkType === "external" && button.openInNewWindow ? "noopener noreferrer" : undefined;
-    return button.url ? (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("a", {
-      key: index,
-      href: button.url,
-      className: `hero-button hero-button-${button.style}`,
-      target: target,
-      rel: rel
-    }, button.text) : (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
-      key: index,
-      className: `hero-button hero-button-${button.style}`
-    }, button.text);
-  }));
-};
-
-/***/ }),
-
 /***/ "./src/blocks/hero/index.js":
 /*!**********************************!*\
   !*** ./src/blocks/hero/index.js ***!
@@ -1040,8 +828,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_4__);
 /* harmony import */ var _wordpress_icons__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @wordpress/icons */ "./node_modules/@wordpress/icons/build-module/library/trash.js");
-/* harmony import */ var _components_button_group__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../components/button-group */ "./src/blocks/hero/components/button-group.js");
+/* harmony import */ var _components_ButtonGroup__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../../components/ButtonGroup */ "./src/components/ButtonGroup.js");
 
+// src/blocks/hero/variations/carousel.js
 
 
 
@@ -1153,7 +942,7 @@ const CarouselEdit = ({
   })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelBody, {
     title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Button Settings", "socius-block-manager"),
     initialOpen: false
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_button_group__WEBPACK_IMPORTED_MODULE_6__.ButtonGroup, {
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_ButtonGroup__WEBPACK_IMPORTED_MODULE_6__.ButtonGroup, {
     buttons: buttons,
     onChange: newButtons => setAttributes({
       buttons: newButtons
@@ -1210,7 +999,7 @@ const CarouselEdit = ({
       subtitle: value
     }),
     className: "hero-subtitle"
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_button_group__WEBPACK_IMPORTED_MODULE_6__.ButtonGroupDisplay, {
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_ButtonGroup__WEBPACK_IMPORTED_MODULE_6__.ButtonGroupDisplay, {
     buttons: buttons
   })), carouselImages.length > 0 && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "carousel-indicators"
@@ -1260,7 +1049,7 @@ const CarouselSave = ({
     tagName: "p",
     value: subtitle,
     className: "hero-subtitle"
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_button_group__WEBPACK_IMPORTED_MODULE_6__.ButtonGroupDisplay, {
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_ButtonGroup__WEBPACK_IMPORTED_MODULE_6__.ButtonGroupDisplay, {
     buttons: buttons
   })), carouselImages.length > 0 && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "carousel-indicators"
@@ -1292,8 +1081,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
 /* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _components_button_group__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../components/button-group */ "./src/blocks/hero/components/button-group.js");
+/* harmony import */ var _components_ButtonGroup__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../../components/ButtonGroup */ "./src/components/ButtonGroup.js");
 
+// src/blocks/hero/variations/single-image.js
 
 
 
@@ -1368,7 +1158,7 @@ const SingleImageEdit = ({
   })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelBody, {
     title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Button Settings", "socius-block-manager"),
     initialOpen: false
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_button_group__WEBPACK_IMPORTED_MODULE_4__.ButtonGroup, {
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_ButtonGroup__WEBPACK_IMPORTED_MODULE_4__.ButtonGroup, {
     buttons: buttons,
     onChange: newButtons => setAttributes({
       buttons: newButtons
@@ -1419,7 +1209,7 @@ const SingleImageEdit = ({
       subtitle: value
     }),
     className: "hero-subtitle"
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_button_group__WEBPACK_IMPORTED_MODULE_4__.ButtonGroupDisplay, {
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_ButtonGroup__WEBPACK_IMPORTED_MODULE_4__.ButtonGroupDisplay, {
     buttons: buttons
   })))));
 };
@@ -1457,7 +1247,7 @@ const SingleImageSave = ({
     tagName: "p",
     value: subtitle,
     className: "hero-subtitle"
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_button_group__WEBPACK_IMPORTED_MODULE_4__.ButtonGroupDisplay, {
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_ButtonGroup__WEBPACK_IMPORTED_MODULE_4__.ButtonGroupDisplay, {
     buttons: buttons
   }))));
 };
@@ -1483,8 +1273,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
 /* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _components_button_group__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../components/button-group */ "./src/blocks/hero/components/button-group.js");
+/* harmony import */ var _components_ButtonGroup__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../../components/ButtonGroup */ "./src/components/ButtonGroup.js");
 
+// src/blocks/hero/variations/with-form.js
 
 
 
@@ -1580,7 +1371,7 @@ const WithFormEdit = ({
   })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelBody, {
     title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Button Settings", "socius-block-manager"),
     initialOpen: false
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_button_group__WEBPACK_IMPORTED_MODULE_4__.ButtonGroup, {
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_ButtonGroup__WEBPACK_IMPORTED_MODULE_4__.ButtonGroup, {
     buttons: buttons,
     onChange: newButtons => setAttributes({
       buttons: newButtons
@@ -1641,7 +1432,7 @@ const WithFormEdit = ({
       description: value
     }),
     className: "hero-description"
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_button_group__WEBPACK_IMPORTED_MODULE_4__.ButtonGroupDisplay, {
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_ButtonGroup__WEBPACK_IMPORTED_MODULE_4__.ButtonGroupDisplay, {
     buttons: buttons
   })), showForm && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "hero-form-container"
@@ -1694,7 +1485,7 @@ const WithFormSave = ({
     tagName: "p",
     value: description,
     className: "hero-description"
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_button_group__WEBPACK_IMPORTED_MODULE_4__.ButtonGroupDisplay, {
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_ButtonGroup__WEBPACK_IMPORTED_MODULE_4__.ButtonGroupDisplay, {
     buttons: buttons
   })), showForm && formShortcode && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "hero-form-container"
@@ -1704,6 +1495,289 @@ const WithFormSave = ({
     }
   })))));
 };
+
+/***/ }),
+
+/***/ "./src/blocks/showcase.js":
+/*!********************************!*\
+  !*** ./src/blocks/showcase.js ***!
+  \********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _wordpress_blocks__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/blocks */ "@wordpress/blocks");
+/* harmony import */ var _wordpress_blocks__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_blocks__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/block-editor */ "@wordpress/block-editor");
+/* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _components_ButtonGroup__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../components/ButtonGroup */ "./src/components/ButtonGroup.js");
+
+// src/blocks/showcase.js
+
+
+
+
+
+(0,_wordpress_blocks__WEBPACK_IMPORTED_MODULE_1__.registerBlockType)("socius-pro-blocks/showcase", {
+  edit: ({
+    attributes,
+    setAttributes
+  }) => {
+    const {
+      eyebrow,
+      title,
+      subtitle,
+      content,
+      imageUrl,
+      imageId,
+      buttons,
+      horizontalAlign,
+      verticalAlign,
+      backgroundColor,
+      textColor,
+      overlayOpacity
+    } = attributes;
+    const blockProps = (0,_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.useBlockProps)({
+      className: `socius-showcase-block align-h-${horizontalAlign} align-v-${verticalAlign}`
+    });
+    const onSelectImage = media => {
+      setAttributes({
+        imageUrl: media.url,
+        imageId: media.id
+      });
+    };
+    const onRemoveImage = () => {
+      setAttributes({
+        imageUrl: "",
+        imageId: 0
+      });
+    };
+    return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.InspectorControls, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.PanelBody, {
+      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Background Image", "socius-block-manager"),
+      initialOpen: true
+    }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.MediaUploadCheck, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.MediaUpload, {
+      onSelect: onSelectImage,
+      allowedTypes: ["image"],
+      value: imageId,
+      render: ({
+        open
+      }) => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, imageUrl ? (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.ResponsiveWrapper, {
+        naturalWidth: 400,
+        naturalHeight: 300
+      }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
+        src: imageUrl,
+        alt: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Showcase background", "socius-block-manager")
+      })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+        style: {
+          marginTop: "1rem"
+        }
+      }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.Button, {
+        isSecondary: true,
+        onClick: open
+      }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Replace Image", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.Button, {
+        isDestructive: true,
+        onClick: onRemoveImage,
+        style: {
+          marginLeft: "1rem"
+        }
+      }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Remove Image", "socius-block-manager")))) : (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.Button, {
+        isPrimary: true,
+        onClick: open
+      }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Select Background Image", "socius-block-manager")))
+    })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.RangeControl, {
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Overlay Opacity", "socius-block-manager"),
+      value: overlayOpacity,
+      onChange: value => setAttributes({
+        overlayOpacity: value
+      }),
+      min: 0,
+      max: 1,
+      step: 0.1
+    })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.PanelBody, {
+      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Layout Settings", "socius-block-manager"),
+      initialOpen: true
+    }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.SelectControl, {
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Horizontal Alignment", "socius-block-manager"),
+      value: horizontalAlign,
+      options: [{
+        label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Left", "socius-block-manager"),
+        value: "left"
+      }, {
+        label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Center", "socius-block-manager"),
+        value: "center"
+      }, {
+        label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Right", "socius-block-manager"),
+        value: "right"
+      }],
+      onChange: value => setAttributes({
+        horizontalAlign: value
+      }),
+      help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Position content horizontally", "socius-block-manager")
+    }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.SelectControl, {
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Vertical Alignment", "socius-block-manager"),
+      value: verticalAlign,
+      options: [{
+        label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Top", "socius-block-manager"),
+        value: "top"
+      }, {
+        label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Middle", "socius-block-manager"),
+        value: "middle"
+      }, {
+        label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Bottom", "socius-block-manager"),
+        value: "bottom"
+      }],
+      onChange: value => setAttributes({
+        verticalAlign: value
+      }),
+      help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Position content vertically", "socius-block-manager")
+    })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.PanelBody, {
+      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Button Settings", "socius-block-manager"),
+      initialOpen: false
+    }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_ButtonGroup__WEBPACK_IMPORTED_MODULE_5__.ButtonGroup, {
+      buttons: buttons,
+      onChange: newButtons => setAttributes({
+        buttons: newButtons
+      }),
+      maxButtons: 3
+    })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.PanelColorSettings, {
+      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Color Settings", "socius-block-manager"),
+      colorSettings: [{
+        value: backgroundColor,
+        onChange: value => setAttributes({
+          backgroundColor: value
+        }),
+        label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Background Color (fallback)", "socius-block-manager")
+      }, {
+        value: textColor,
+        onChange: value => setAttributes({
+          textColor: value
+        }),
+        label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Text Color", "socius-block-manager")
+      }]
+    })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      ...blockProps
+    }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      className: "showcase-background",
+      style: {
+        backgroundImage: imageUrl ? `url(${imageUrl})` : "none",
+        backgroundColor: backgroundColor
+      }
+    }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      className: "showcase-overlay",
+      style: {
+        backgroundColor: `rgba(0, 0, 0, ${overlayOpacity})`
+      }
+    }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      className: "showcase-content-wrapper"
+    }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      className: "showcase-content",
+      style: {
+        color: textColor
+      }
+    }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.RichText, {
+      tagName: "div",
+      placeholder: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Enter eyebrow text...", "socius-block-manager"),
+      value: eyebrow,
+      onChange: value => setAttributes({
+        eyebrow: value
+      }),
+      className: "showcase-eyebrow"
+    }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.RichText, {
+      tagName: "h2",
+      placeholder: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Enter showcase title...", "socius-block-manager"),
+      value: title,
+      onChange: value => setAttributes({
+        title: value
+      }),
+      className: "showcase-title"
+    }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.RichText, {
+      tagName: "h3",
+      placeholder: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Enter subtitle...", "socius-block-manager"),
+      value: subtitle,
+      onChange: value => setAttributes({
+        subtitle: value
+      }),
+      className: "showcase-subtitle"
+    }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.RichText, {
+      tagName: "div",
+      placeholder: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Enter showcase content...", "socius-block-manager"),
+      value: content,
+      onChange: value => setAttributes({
+        content: value
+      }),
+      className: "showcase-text",
+      multiline: "p"
+    }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_ButtonGroup__WEBPACK_IMPORTED_MODULE_5__.ButtonGroupDisplay, {
+      buttons: buttons,
+      className: "showcase-button-group"
+    })))))));
+  },
+  save: ({
+    attributes
+  }) => {
+    const {
+      eyebrow,
+      title,
+      subtitle,
+      content,
+      imageUrl,
+      buttons,
+      horizontalAlign,
+      verticalAlign,
+      backgroundColor,
+      textColor,
+      overlayOpacity
+    } = attributes;
+    const blockProps = _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.useBlockProps.save({
+      className: `socius-showcase-block align-h-${horizontalAlign} align-v-${verticalAlign}`
+    });
+    return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      ...blockProps
+    }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      className: "showcase-background",
+      style: {
+        backgroundImage: imageUrl ? `url(${imageUrl})` : "none",
+        backgroundColor: backgroundColor
+      }
+    }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      className: "showcase-overlay",
+      style: {
+        backgroundColor: `rgba(0, 0, 0, ${overlayOpacity})`
+      }
+    }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      className: "showcase-content-wrapper"
+    }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      className: "showcase-content",
+      style: {
+        color: textColor
+      }
+    }, eyebrow && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.RichText.Content, {
+      tagName: "div",
+      value: eyebrow,
+      className: "showcase-eyebrow"
+    }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.RichText.Content, {
+      tagName: "h2",
+      value: title,
+      className: "showcase-title"
+    }), subtitle && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.RichText.Content, {
+      tagName: "h3",
+      value: subtitle,
+      className: "showcase-subtitle"
+    }), content && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.RichText.Content, {
+      tagName: "div",
+      value: content,
+      className: "showcase-text"
+    }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_ButtonGroup__WEBPACK_IMPORTED_MODULE_5__.ButtonGroupDisplay, {
+      buttons: buttons,
+      className: "showcase-button-group"
+    }))))));
+  }
+});
 
 /***/ }),
 
@@ -1874,6 +1948,216 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./src/components/ButtonGroup.js":
+/*!***************************************!*\
+  !*** ./src/components/ButtonGroup.js ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   ButtonGroup: () => (/* binding */ ButtonGroup),
+/* harmony export */   ButtonGroupDisplay: () => (/* binding */ ButtonGroupDisplay)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _wordpress_icons__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/icons */ "./node_modules/@wordpress/icons/build-module/library/plus.js");
+/* harmony import */ var _wordpress_icons__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/icons */ "./node_modules/@wordpress/icons/build-module/library/trash.js");
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_5__);
+
+
+
+
+
+const ButtonGroup = ({
+  buttons,
+  onChange,
+  maxButtons = 3
+}) => {
+  const [pages, setPages] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_5__.useState)([]);
+  const [posts, setPosts] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_5__.useState)([]);
+  const [loading, setLoading] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_5__.useState)(true);
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_5__.useEffect)(() => {
+    fetchPagesAndPosts();
+  }, []);
+  const fetchPagesAndPosts = async () => {
+    try {
+      const pagesResponse = await fetch("/wp-json/wp/v2/pages?per_page=100&orderby=title&order=asc");
+      const pagesData = await pagesResponse.json();
+      setPages(pagesData.map(page => ({
+        label: page.title.rendered,
+        value: page.link
+      })));
+      const postsResponse = await fetch("/wp-json/wp/v2/posts?per_page=100&orderby=date&order=desc");
+      const postsData = await postsResponse.json();
+      setPosts(postsData.map(post => ({
+        label: post.title.rendered,
+        value: post.link
+      })));
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching pages/posts:", error);
+      setLoading(false);
+    }
+  };
+  const addButton = () => {
+    if (buttons.length < maxButtons) {
+      onChange([...buttons, {
+        text: "New Button",
+        linkType: "external",
+        url: "",
+        style: "primary",
+        openInNewWindow: false
+      }]);
+    }
+  };
+  const updateButton = (index, field, value) => {
+    const newButtons = [...buttons];
+    newButtons[index][field] = value;
+    if (field === "linkType") {
+      newButtons[index].url = "";
+    }
+    onChange(newButtons);
+  };
+  const removeButton = index => {
+    const newButtons = buttons.filter((_, i) => i !== index);
+    onChange(newButtons.length > 0 ? newButtons : [{
+      text: "Button",
+      linkType: "external",
+      url: "",
+      style: "primary",
+      openInNewWindow: false
+    }]);
+  };
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "button-group-editor"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: "10px"
+    }
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Buttons", "socius-block-manager")), buttons.length < maxButtons && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.Button, {
+    icon: _wordpress_icons__WEBPACK_IMPORTED_MODULE_3__["default"],
+    isSmall: true,
+    onClick: addButton
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Add Button", "socius-block-manager"))), buttons.map((button, index) => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    key: index,
+    style: {
+      marginBottom: "15px",
+      padding: "15px",
+      border: "1px solid #ddd",
+      borderRadius: "4px",
+      background: "#f9f9f9"
+    }
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      marginBottom: "10px"
+    }
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Button", "socius-block-manager"), " ", index + 1), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.Button, {
+    icon: _wordpress_icons__WEBPACK_IMPORTED_MODULE_4__["default"],
+    isDestructive: true,
+    isSmall: true,
+    onClick: () => removeButton(index),
+    disabled: buttons.length === 1
+  })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.TextControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Button Text", "socius-block-manager"),
+    value: button.text,
+    onChange: value => updateButton(index, "text", value)
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.SelectControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Link Type", "socius-block-manager"),
+    value: button.linkType || "external",
+    options: [{
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("External URL", "socius-block-manager"),
+      value: "external"
+    }, {
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Internal Page", "socius-block-manager"),
+      value: "page"
+    }, {
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Internal Post", "socius-block-manager"),
+      value: "post"
+    }],
+    onChange: value => updateButton(index, "linkType", value)
+  }), button.linkType === "external" && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.TextControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("External URL", "socius-block-manager"),
+    value: button.url,
+    onChange: value => updateButton(index, "url", value),
+    placeholder: "https://example.com",
+    help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Enter the full URL including https://", "socius-block-manager")
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.CheckboxControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Open in new window", "socius-block-manager"),
+    checked: button.openInNewWindow || false,
+    onChange: value => updateButton(index, "openInNewWindow", value)
+  })), button.linkType === "page" && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.SelectControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Select Page", "socius-block-manager"),
+    value: button.url,
+    options: [{
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("-- Select a Page --", "socius-block-manager"),
+      value: ""
+    }, ...pages],
+    onChange: value => updateButton(index, "url", value),
+    disabled: loading
+  }), button.linkType === "post" && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.SelectControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Select Post", "socius-block-manager"),
+    value: button.url,
+    options: [{
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("-- Select a Post --", "socius-block-manager"),
+      value: ""
+    }, ...posts],
+    onChange: value => updateButton(index, "url", value),
+    disabled: loading
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.SelectControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Button Style", "socius-block-manager"),
+    value: button.style,
+    options: [{
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Primary", "socius-block-manager"),
+      value: "primary"
+    }, {
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Secondary", "socius-block-manager"),
+      value: "secondary"
+    }, {
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Outline", "socius-block-manager"),
+      value: "outline"
+    }],
+    onChange: value => updateButton(index, "style", value)
+  }))));
+};
+const ButtonGroupDisplay = ({
+  buttons,
+  className = "hero-button-group"
+}) => {
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: className
+  }, buttons.map((button, index) => {
+    const target = button.linkType === "external" && button.openInNewWindow ? "_blank" : "_self";
+    const rel = button.linkType === "external" && button.openInNewWindow ? "noopener noreferrer" : undefined;
+    if (button.url) {
+      return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("a", {
+        key: index,
+        href: button.url,
+        className: `hero-button hero-button-${button.style}`,
+        target: target,
+        rel: rel
+      }, button.text);
+    } else {
+      return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
+        key: index,
+        className: `hero-button hero-button-${button.style}`
+      }, button.text);
+    }
+  }));
+};
+
+/***/ }),
+
 /***/ "@wordpress/block-editor":
 /*!*************************************!*\
   !*** external ["wp","blockEditor"] ***!
@@ -2023,7 +2307,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _blocks_testimonial__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./blocks/testimonial */ "./src/blocks/testimonial.js");
 /* harmony import */ var _blocks_feature_box__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./blocks/feature-box */ "./src/blocks/feature-box.js");
 /* harmony import */ var _blocks_hero__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./blocks/hero */ "./src/blocks/hero/index.js");
+/* harmony import */ var _blocks_showcase__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./blocks/showcase */ "./src/blocks/showcase.js");
 // Import all block registrations
+
 
 
 
