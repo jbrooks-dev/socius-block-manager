@@ -57,6 +57,13 @@ class SociusBlockManager {
         add_action('enqueue_block_editor_assets', array($this, 'enqueue_editor_blocks'));
         add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_blocks'));
         add_filter('render_block', array($this, 'track_used_blocks'), 10, 2);
+
+        // Theme Settings
+        add_action('wp_ajax_get_button_styles', array($this, 'ajax_get_button_styles'));
+        add_action('wp_ajax_save_button_styles', array($this, 'ajax_save_button_styles'));
+        // Enqueue dynamic button styles
+        add_action('wp_enqueue_scripts', array($this, 'enqueue_dynamic_button_styles'));
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_dynamic_button_styles'));
         
         register_activation_hook(__FILE__, array($this, 'activate_plugin'));
     }
@@ -414,6 +421,16 @@ class SociusBlockManager {
             array($this, 'render_block_list_page')
         );
         //
+
+        // Theme Settings
+        add_submenu_page(
+            'socius-block-manager',
+            'Theme Settings',
+            'Theme Settings',
+            'manage_options',
+            'socius-block-theme-settings',
+            array($this, 'render_theme_settings_page')
+        );
         
         add_submenu_page(
             'socius-block-manager',
@@ -470,6 +487,13 @@ class SociusBlockManager {
             wp_die(__('You do not have sufficient permissions to access this page.'));
         }
         echo '<div id="socius-block-manager-list"></div>';
+    }
+
+    public function render_theme_settings_page() {
+        if (!current_user_can('manage_options')) {
+            wp_die(__('You do not have sufficient permissions to access this page.'));
+        }
+        echo '<div id="socius-block-manager-theme-settings"></div>';
     }
     
     public function render_available_blocks_page() {
@@ -850,6 +874,164 @@ class SociusBlockManager {
     private function get_current_user_role() {
         $user = wp_get_current_user();
         return !empty($user->roles) ? $user->roles[0] : 'none';
+    }
+
+    public function ajax_get_button_styles() {
+        check_ajax_referer('socius_block_manager_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_die('Unauthorized');
+        }
+        
+        $default_settings = array(
+            'primary' => array(
+                'background' => '#2271b1',
+                'color' => '#ffffff',
+                'border' => '#2271b1',
+                'backgroundHover' => '#135e96',
+                'colorHover' => '#ffffff',
+                'borderHover' => '#135e96',
+                'fontFamily' => 'inherit',
+                'fontWeight' => '600',
+            ),
+            'secondary' => array(
+                'background' => 'rgba(255, 255, 255, 0.2)',
+                'color' => '#ffffff',
+                'border' => 'rgba(255, 255, 255, 0.5)',
+                'backgroundHover' => 'rgba(255, 255, 255, 0.3)',
+                'colorHover' => '#ffffff',
+                'borderHover' => 'rgba(255, 255, 255, 0.8)',
+                'fontFamily' => 'inherit',
+                'fontWeight' => '600',
+            ),
+            'outline' => array(
+                'background' => 'transparent',
+                'color' => '#ffffff',
+                'border' => '#ffffff',
+                'backgroundHover' => 'rgba(255, 255, 255, 0.1)',
+                'colorHover' => '#ffffff',
+                'borderHover' => '#ffffff',
+                'fontFamily' => 'inherit',
+                'fontWeight' => '600',
+            ),
+            'general' => array(
+                'padding' => '15px 35px',
+                'fontSize' => '1.1rem',
+                'borderRadius' => '6px',
+                'borderWidth' => '2px',
+            ),
+        );
+        
+        $settings = get_option('socius_button_styles', $default_settings);
+        
+        wp_send_json_success($settings);
+    }
+
+    public function ajax_save_button_styles() {
+        check_ajax_referer('socius_block_manager_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_die('Unauthorized');
+        }
+        
+        $settings = json_decode(stripslashes($_POST['settings']), true);
+        
+        if (update_option('socius_button_styles', $settings)) {
+            wp_send_json_success(__('Button styles saved successfully!', 'socius-block-manager'));
+        } else {
+            wp_send_json_error(__('Failed to save button styles', 'socius-block-manager'));
+        }
+    }
+
+    // Generate dynamic CSS for button styles
+    public function generate_button_styles_css() {
+        $default_settings = array(
+            'primary' => array(
+                'background' => '#2271b1',
+                'color' => '#ffffff',
+                'border' => '#2271b1',
+                'backgroundHover' => '#135e96',
+                'colorHover' => '#ffffff',
+                'borderHover' => '#135e96',
+                'fontFamily' => 'inherit',
+                'fontWeight' => '600',
+            ),
+            'secondary' => array(
+                'background' => 'rgba(255, 255, 255, 0.2)',
+                'color' => '#ffffff',
+                'border' => 'rgba(255, 255, 255, 0.5)',
+                'backgroundHover' => 'rgba(255, 255, 255, 0.3)',
+                'colorHover' => '#ffffff',
+                'borderHover' => 'rgba(255, 255, 255, 0.8)',
+                'fontFamily' => 'inherit',
+                'fontWeight' => '600',
+            ),
+            'outline' => array(
+                'background' => 'transparent',
+                'color' => '#ffffff',
+                'border' => '#ffffff',
+                'backgroundHover' => 'rgba(255, 255, 255, 0.1)',
+                'colorHover' => '#ffffff',
+                'borderHover' => '#ffffff',
+                'fontFamily' => 'inherit',
+                'fontWeight' => '600',
+            ),
+            'general' => array(
+                'padding' => '15px 35px',
+                'fontSize' => '1.1rem',
+                'borderRadius' => '6px',
+                'borderWidth' => '2px',
+            ),
+        );
+        
+        $settings = get_option('socius_button_styles', $default_settings);
+        
+        $css = ':root {';
+        
+        // Primary button variables
+        $css .= '--hero-button-primary-bg: ' . esc_attr($settings['primary']['background']) . ';';
+        $css .= '--hero-button-primary-color: ' . esc_attr($settings['primary']['color']) . ';';
+        $css .= '--hero-button-primary-border: ' . esc_attr($settings['primary']['border']) . ';';
+        $css .= '--hero-button-primary-bg-hover: ' . esc_attr($settings['primary']['backgroundHover']) . ';';
+        $css .= '--hero-button-primary-color-hover: ' . esc_attr($settings['primary']['colorHover']) . ';';
+        $css .= '--hero-button-primary-border-hover: ' . esc_attr($settings['primary']['borderHover']) . ';';
+        $css .= '--hero-button-primary-font-family: ' . esc_attr($settings['primary']['fontFamily']) . ';';
+        $css .= '--hero-button-primary-font-weight: ' . esc_attr($settings['primary']['fontWeight']) . ';';
+        
+        // Secondary button variables
+        $css .= '--hero-button-secondary-bg: ' . esc_attr($settings['secondary']['background']) . ';';
+        $css .= '--hero-button-secondary-color: ' . esc_attr($settings['secondary']['color']) . ';';
+        $css .= '--hero-button-secondary-border: ' . esc_attr($settings['secondary']['border']) . ';';
+        $css .= '--hero-button-secondary-bg-hover: ' . esc_attr($settings['secondary']['backgroundHover']) . ';';
+        $css .= '--hero-button-secondary-color-hover: ' . esc_attr($settings['secondary']['colorHover']) . ';';
+        $css .= '--hero-button-secondary-border-hover: ' . esc_attr($settings['secondary']['borderHover']) . ';';
+        $css .= '--hero-button-secondary-font-family: ' . esc_attr($settings['secondary']['fontFamily']) . ';';
+        $css .= '--hero-button-secondary-font-weight: ' . esc_attr($settings['secondary']['fontWeight']) . ';';
+        
+        // Outline button variables
+        $css .= '--hero-button-outline-bg: ' . esc_attr($settings['outline']['background']) . ';';
+        $css .= '--hero-button-outline-color: ' . esc_attr($settings['outline']['color']) . ';';
+        $css .= '--hero-button-outline-border: ' . esc_attr($settings['outline']['border']) . ';';
+        $css .= '--hero-button-outline-bg-hover: ' . esc_attr($settings['outline']['backgroundHover']) . ';';
+        $css .= '--hero-button-outline-color-hover: ' . esc_attr($settings['outline']['colorHover']) . ';';
+        $css .= '--hero-button-outline-border-hover: ' . esc_attr($settings['outline']['borderHover']) . ';';
+        $css .= '--hero-button-outline-font-family: ' . esc_attr($settings['outline']['fontFamily']) . ';';
+        $css .= '--hero-button-outline-font-weight: ' . esc_attr($settings['outline']['fontWeight']) . ';';
+        
+        // General button variables
+        $css .= '--hero-button-padding: ' . esc_attr($settings['general']['padding']) . ';';
+        $css .= '--hero-button-font-size: ' . esc_attr($settings['general']['fontSize']) . ';';
+        $css .= '--hero-button-border-radius: ' . esc_attr($settings['general']['borderRadius']) . ';';
+        $css .= '--hero-button-border-width: ' . esc_attr($settings['general']['borderWidth']) . ';';
+        
+        $css .= '}';
+        
+        return $css;
+    }
+
+    public function enqueue_dynamic_button_styles() {
+        $custom_css = $this->generate_button_styles_css();
+        wp_add_inline_style('wp-block-library', $custom_css);
     }
 }
 

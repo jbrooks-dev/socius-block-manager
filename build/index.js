@@ -10445,6 +10445,530 @@ const SplashPage = () => {
 
 /***/ }),
 
+/***/ "./src/components/ThemeSettingsPage.js":
+/*!*********************************************!*\
+  !*** ./src/components/ThemeSettingsPage.js ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__);
+
+
+
+
+const ThemeSettingsPage = () => {
+  const [settings, setSettings] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)({
+    primary: {
+      background: "#2271b1",
+      color: "#ffffff",
+      border: "#2271b1",
+      backgroundHover: "#135e96",
+      colorHover: "#ffffff",
+      borderHover: "#135e96",
+      fontFamily: "inherit",
+      fontWeight: "600"
+    },
+    secondary: {
+      background: "rgba(255, 255, 255, 0.2)",
+      color: "#ffffff",
+      border: "rgba(255, 255, 255, 0.5)",
+      backgroundHover: "rgba(255, 255, 255, 0.3)",
+      colorHover: "#ffffff",
+      borderHover: "rgba(255, 255, 255, 0.8)",
+      fontFamily: "inherit",
+      fontWeight: "600"
+    },
+    outline: {
+      background: "transparent",
+      color: "#ffffff",
+      border: "#ffffff",
+      backgroundHover: "rgba(255, 255, 255, 0.1)",
+      colorHover: "#ffffff",
+      borderHover: "#ffffff",
+      fontFamily: "inherit",
+      fontWeight: "600"
+    },
+    general: {
+      padding: "15px 35px",
+      fontSize: "1.1rem",
+      borderRadius: "6px",
+      borderWidth: "2px"
+    }
+  });
+  const [loading, setLoading] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(true);
+  const [saving, setSaving] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
+  const [notice, setNotice] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
+  const {
+    ajaxUrl,
+    nonce
+  } = window.sociusBlockManager || {};
+  const fontFamilyOptions = [{
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Inherit from theme", "socius-block-manager"),
+    value: "inherit"
+  }, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("System Default", "socius-block-manager"),
+    value: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif"
+  }, {
+    label: "Arial",
+    value: "Arial, sans-serif"
+  }, {
+    label: "Helvetica",
+    value: "Helvetica, Arial, sans-serif"
+  }, {
+    label: "Georgia",
+    value: "Georgia, serif"
+  }, {
+    label: "Times New Roman",
+    value: "'Times New Roman', Times, serif"
+  }, {
+    label: "Courier New",
+    value: "'Courier New', Courier, monospace"
+  }, {
+    label: "Verdana",
+    value: "Verdana, Geneva, sans-serif"
+  }, {
+    label: "Trebuchet MS",
+    value: "'Trebuchet MS', Helvetica, sans-serif"
+  }];
+  const fontWeightOptions = [{
+    label: "300 - Light",
+    value: "300"
+  }, {
+    label: "400 - Normal",
+    value: "400"
+  }, {
+    label: "500 - Medium",
+    value: "500"
+  }, {
+    label: "600 - Semi Bold",
+    value: "600"
+  }, {
+    label: "700 - Bold",
+    value: "700"
+  }, {
+    label: "800 - Extra Bold",
+    value: "800"
+  }];
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
+    loadSettings();
+  }, []);
+  const loadSettings = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("action", "get_button_styles");
+      formData.append("nonce", nonce);
+      const response = await fetch(ajaxUrl, {
+        method: "POST",
+        body: formData
+      });
+      const result = await response.json();
+      if (result.success && result.data) {
+        const loadedSettings = {
+          primary: {
+            ...settings.primary,
+            ...result.data.primary
+          },
+          secondary: {
+            ...settings.secondary,
+            ...result.data.secondary
+          },
+          outline: {
+            ...settings.outline,
+            ...result.data.outline
+          },
+          general: {
+            ...settings.general,
+            ...result.data.general
+          }
+        };
+        setSettings(loadedSettings);
+      }
+    } catch (error) {
+      console.error("Error loading button styles:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const saveSettings = async () => {
+    setSaving(true);
+    setNotice(null);
+    try {
+      const formData = new FormData();
+      formData.append("action", "save_button_styles");
+      formData.append("nonce", nonce);
+      formData.append("settings", JSON.stringify(settings));
+      const response = await fetch(ajaxUrl, {
+        method: "POST",
+        body: formData
+      });
+      const result = await response.json();
+      if (result.success) {
+        setNotice({
+          type: "success",
+          message: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Button styles saved successfully! Refresh the page to see changes.", "socius-block-manager")
+        });
+      } else {
+        setNotice({
+          type: "error",
+          message: result.data || (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Failed to save button styles", "socius-block-manager")
+        });
+      }
+    } catch (error) {
+      setNotice({
+        type: "error",
+        message: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Error saving button styles", "socius-block-manager")
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+  const resetToDefaults = () => {
+    setSettings({
+      primary: {
+        background: "#2271b1",
+        color: "#ffffff",
+        border: "#2271b1",
+        backgroundHover: "#135e96",
+        colorHover: "#ffffff",
+        borderHover: "#135e96",
+        fontFamily: "inherit",
+        fontWeight: "600"
+      },
+      secondary: {
+        background: "rgba(255, 255, 255, 0.2)",
+        color: "#ffffff",
+        border: "rgba(255, 255, 255, 0.5)",
+        backgroundHover: "rgba(255, 255, 255, 0.3)",
+        colorHover: "#ffffff",
+        borderHover: "rgba(255, 255, 255, 0.8)",
+        fontFamily: "inherit",
+        fontWeight: "600"
+      },
+      outline: {
+        background: "transparent",
+        color: "#ffffff",
+        border: "#ffffff",
+        backgroundHover: "rgba(255, 255, 255, 0.1)",
+        colorHover: "#ffffff",
+        borderHover: "#ffffff",
+        fontFamily: "inherit",
+        fontWeight: "600"
+      },
+      general: {
+        padding: "15px 35px",
+        fontSize: "1.1rem",
+        borderRadius: "6px",
+        borderWidth: "2px"
+      }
+    });
+    setNotice({
+      type: "info",
+      message: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Settings reset to defaults. Click Save to apply.", "socius-block-manager")
+    });
+  };
+  const updateSetting = (style, property, value) => {
+    setSettings(prev => ({
+      ...prev,
+      [style]: {
+        ...prev[style],
+        [property]: value
+      }
+    }));
+  };
+  const parseColor = color => {
+    if (typeof color === "object" && color !== null) {
+      return color;
+    }
+    if (typeof color !== "string") {
+      return {
+        r: 0,
+        g: 0,
+        b: 0,
+        a: 1
+      };
+    }
+    if (color.startsWith("rgba") || color.startsWith("rgb")) {
+      const match = color.match(/rgba?\((\d+),?\s*(\d+),?\s*(\d+),?\s*([\d.]+)?\)/);
+      if (match) {
+        return {
+          r: parseInt(match[1]),
+          g: parseInt(match[2]),
+          b: parseInt(match[3]),
+          a: match[4] ? parseFloat(match[4]) : 1
+        };
+      }
+    }
+    if (color.startsWith("#")) {
+      const hex = color.replace("#", "");
+      if (hex.length === 6) {
+        return {
+          r: parseInt(hex.substr(0, 2), 16),
+          g: parseInt(hex.substr(2, 2), 16),
+          b: parseInt(hex.substr(4, 2), 16),
+          a: 1
+        };
+      } else if (hex.length === 8) {
+        return {
+          r: parseInt(hex.substr(0, 2), 16),
+          g: parseInt(hex.substr(2, 2), 16),
+          b: parseInt(hex.substr(4, 2), 16),
+          a: parseInt(hex.substr(6, 2), 16) / 255
+        };
+      }
+    }
+    if (color === "transparent") {
+      return {
+        r: 0,
+        g: 0,
+        b: 0,
+        a: 0
+      };
+    }
+    return color;
+  };
+  const formatColor = color => {
+    if (typeof color === "object" && color !== null && color.r !== undefined) {
+      if (color.a !== undefined && color.a < 1) {
+        return `rgba(${Math.round(color.r)}, ${Math.round(color.g)}, ${Math.round(color.b)}, ${color.a})`;
+      }
+      const toHex = n => {
+        const hex = Math.round(n).toString(16);
+        return hex.length === 1 ? "0" + hex : hex;
+      };
+      return `#${toHex(color.r)}${toHex(color.g)}${toHex(color.b)}`;
+    }
+    return color;
+  };
+  const renderColorControl = (label, style, property) => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "color-control-inline"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", null, label), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "color-picker-wrapper"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ColorPicker, {
+    color: parseColor(settings[style][property]),
+    onChange: color => updateSetting(style, property, formatColor(color)),
+    enableAlpha: true
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.TextControl, {
+    value: settings[style][property],
+    onChange: value => updateSetting(style, property, value)
+  })));
+  if (loading) {
+    return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      className: "socius-loading"
+    }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Loading button styles...", "socius-block-manager")));
+  }
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "socius-button-styles-container"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "socius-button-styles-header"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h1", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Button Styles", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Customize the appearance of buttons used in Hero and Showcase blocks across your site.", "socius-block-manager"))), notice && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Notice, {
+    status: notice.type,
+    onRemove: () => setNotice(null),
+    isDismissible: true
+  }, notice.message), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "button-styles-layout"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "button-styles-tabs-section"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.TabPanel, {
+    className: "socius-button-styles-tabs",
+    activeClass: "is-active",
+    tabs: [{
+      name: "primary",
+      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Primary", "socius-block-manager"),
+      className: "tab-primary"
+    }, {
+      name: "secondary",
+      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Secondary", "socius-block-manager"),
+      className: "tab-secondary"
+    }, {
+      name: "outline",
+      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Outline", "socius-block-manager"),
+      className: "tab-outline"
+    }, {
+      name: "general",
+      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("General", "socius-block-manager"),
+      className: "tab-general"
+    }]
+  }, tab => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (tab.name === "primary" || tab.name === "secondary" || tab.name === "outline") && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Card, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.CardBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h2", null, tab.name === "primary" && (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Primary Button Style", "socius-block-manager"), tab.name === "secondary" && (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Secondary Button Style", "socius-block-manager"), tab.name === "outline" && (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Outline Button Style", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "typography-controls"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.SelectControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Font Family", "socius-block-manager"),
+    value: settings[tab.name].fontFamily,
+    options: fontFamilyOptions,
+    onChange: value => updateSetting(tab.name, "fontFamily", value)
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.SelectControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Font Weight", "socius-block-manager"),
+    value: settings[tab.name].fontWeight,
+    options: fontWeightOptions,
+    onChange: value => updateSetting(tab.name, "fontWeight", value)
+  })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h3", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Normal State", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "color-controls-row"
+  }, renderColorControl((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Background", "socius-block-manager"), tab.name, "background"), renderColorControl((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Text", "socius-block-manager"), tab.name, "color"), renderColorControl((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Border", "socius-block-manager"), tab.name, "border")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h3", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Hover State", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "color-controls-row"
+  }, renderColorControl((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Background", "socius-block-manager"), tab.name, "backgroundHover"), renderColorControl((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Text", "socius-block-manager"), tab.name, "colorHover"), renderColorControl((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Border", "socius-block-manager"), tab.name, "borderHover")))), tab.name === "general" && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Card, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.CardBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h2", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("General Button Settings", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("These settings apply to all button styles", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "general-controls-grid"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.TextControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Padding", "socius-block-manager"),
+    value: settings.general.padding,
+    onChange: value => updateSetting("general", "padding", value),
+    help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("e.g., 15px 35px", "socius-block-manager")
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.TextControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Font Size", "socius-block-manager"),
+    value: settings.general.fontSize,
+    onChange: value => updateSetting("general", "fontSize", value),
+    help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("e.g., 1.1rem or 18px", "socius-block-manager")
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.TextControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Border Radius", "socius-block-manager"),
+    value: settings.general.borderRadius,
+    onChange: value => updateSetting("general", "borderRadius", value),
+    help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("e.g., 6px or 30px", "socius-block-manager")
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.TextControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Border Width", "socius-block-manager"),
+    value: settings.general.borderWidth,
+    onChange: value => updateSetting("general", "borderWidth", value),
+    help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("e.g., 2px", "socius-block-manager")
+  }))))))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "button-styles-preview-section"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Card, {
+    className: "preview-sticky-card"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.CardBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h3", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Live Preview", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "preview-group"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h4", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Primary Button", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "preview-states"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "preview-state"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("small", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Normal", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
+    className: "preview-button",
+    style: {
+      backgroundColor: settings.primary.background,
+      color: settings.primary.color,
+      borderColor: settings.primary.border,
+      padding: settings.general.padding,
+      fontSize: settings.general.fontSize,
+      fontFamily: settings.primary.fontFamily,
+      fontWeight: settings.primary.fontWeight,
+      borderRadius: settings.general.borderRadius,
+      borderWidth: settings.general.borderWidth,
+      borderStyle: "solid"
+    }
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Click Me", "socius-block-manager"))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "preview-state"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("small", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Hover", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
+    className: "preview-button",
+    style: {
+      backgroundColor: settings.primary.backgroundHover,
+      color: settings.primary.colorHover,
+      borderColor: settings.primary.borderHover,
+      padding: settings.general.padding,
+      fontSize: settings.general.fontSize,
+      fontFamily: settings.primary.fontFamily,
+      fontWeight: settings.primary.fontWeight,
+      borderRadius: settings.general.borderRadius,
+      borderWidth: settings.general.borderWidth,
+      borderStyle: "solid"
+    }
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Click Me", "socius-block-manager"))))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "preview-group"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h4", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Secondary Button", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "preview-states"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "preview-state"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("small", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Normal", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
+    className: "preview-button",
+    style: {
+      backgroundColor: settings.secondary.background,
+      color: settings.secondary.color,
+      borderColor: settings.secondary.border,
+      padding: settings.general.padding,
+      fontSize: settings.general.fontSize,
+      fontFamily: settings.secondary.fontFamily,
+      fontWeight: settings.secondary.fontWeight,
+      borderRadius: settings.general.borderRadius,
+      borderWidth: settings.general.borderWidth,
+      borderStyle: "solid"
+    }
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Click Me", "socius-block-manager"))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "preview-state"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("small", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Hover", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
+    className: "preview-button",
+    style: {
+      backgroundColor: settings.secondary.backgroundHover,
+      color: settings.secondary.colorHover,
+      borderColor: settings.secondary.borderHover,
+      padding: settings.general.padding,
+      fontSize: settings.general.fontSize,
+      fontFamily: settings.secondary.fontFamily,
+      fontWeight: settings.secondary.fontWeight,
+      borderRadius: settings.general.borderRadius,
+      borderWidth: settings.general.borderWidth,
+      borderStyle: "solid"
+    }
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Click Me", "socius-block-manager"))))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "preview-group"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h4", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Outline Button", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "preview-states"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "preview-state"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("small", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Normal", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
+    className: "preview-button",
+    style: {
+      backgroundColor: settings.outline.background,
+      color: settings.outline.color,
+      borderColor: settings.outline.border,
+      padding: settings.general.padding,
+      fontSize: settings.general.fontSize,
+      fontFamily: settings.outline.fontFamily,
+      fontWeight: settings.outline.fontWeight,
+      borderRadius: settings.general.borderRadius,
+      borderWidth: settings.general.borderWidth,
+      borderStyle: "solid"
+    }
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Click Me", "socius-block-manager"))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "preview-state"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("small", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Hover", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
+    className: "preview-button",
+    style: {
+      backgroundColor: settings.outline.backgroundHover,
+      color: settings.outline.colorHover,
+      borderColor: settings.outline.borderHover,
+      padding: settings.general.padding,
+      fontSize: settings.general.fontSize,
+      fontFamily: settings.outline.fontFamily,
+      fontWeight: settings.outline.fontWeight,
+      borderRadius: settings.general.borderRadius,
+      borderWidth: settings.general.borderWidth,
+      borderStyle: "solid"
+    }
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Click Me", "socius-block-manager"))))))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Card, {
+    className: "socius-button-styles-actions"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.CardBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "action-buttons"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Button, {
+    isPrimary: true,
+    onClick: saveSettings,
+    isBusy: saving,
+    disabled: saving
+  }, saving ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Saving...", "socius-block-manager") : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Save Button Styles", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Button, {
+    isSecondary: true,
+    onClick: resetToDefaults
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Reset to Defaults", "socius-block-manager"))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
+    className: "help-text"
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Changes apply to all Hero and Showcase blocks.", "socius-block-manager")))))));
+};
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (ThemeSettingsPage);
+
+/***/ }),
+
 /***/ "./src/style.css":
 /*!***********************!*\
   !*** ./src/style.css ***!
@@ -10601,8 +11125,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_SplashPage__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./components/SplashPage */ "./src/components/SplashPage.js");
 /* harmony import */ var _components_BlockRestrictionsPage__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./components/BlockRestrictionsPage */ "./src/components/BlockRestrictionsPage.js");
 /* harmony import */ var _components_BlockListPage__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./components/BlockListPage */ "./src/components/BlockListPage.js");
-/* harmony import */ var _components_AvailableBlocksPage__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./components/AvailableBlocksPage */ "./src/components/AvailableBlocksPage.js");
-/* harmony import */ var _style_css__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./style.css */ "./src/style.css");
+/* harmony import */ var _components_ThemeSettingsPage__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./components/ThemeSettingsPage */ "./src/components/ThemeSettingsPage.js");
+/* harmony import */ var _components_AvailableBlocksPage__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./components/AvailableBlocksPage */ "./src/components/AvailableBlocksPage.js");
+/* harmony import */ var _style_css__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./style.css */ "./src/style.css");
+
 
 
 
@@ -10629,8 +11155,12 @@ const App = () => {
       return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_BlockRestrictionsPage__WEBPACK_IMPORTED_MODULE_4__["default"], null);
     case "socius-block-list":
       return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_BlockListPage__WEBPACK_IMPORTED_MODULE_5__["default"], null);
-    case "socius-available-blocks":
-      return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_AvailableBlocksPage__WEBPACK_IMPORTED_MODULE_6__["default"], null);
+
+    // case "socius-available-blocks":
+    //   return <AvailableBlocksPage />;
+
+    case "socius-block-theme-settings":
+      return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_ThemeSettingsPage__WEBPACK_IMPORTED_MODULE_6__["default"], null);
     case "socius-block-manager":
     default:
       return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_SplashPage__WEBPACK_IMPORTED_MODULE_3__["default"], null);
@@ -10651,8 +11181,14 @@ if (restrictionsElement) {
 
 //Test Render restrictions page
 const listElement = document.getElementById("socius-block-manager-list");
+console.log('1');
 if (listElement) {
   (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.render)((0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(App, null), listElement);
+}
+console.log('2');
+const settingsElement = document.getElementById("socius-block-manager-theme-settings");
+if (settingsElement) {
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.render)((0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(App, null), settingsElement);
 }
 
 // Render available blocks page
