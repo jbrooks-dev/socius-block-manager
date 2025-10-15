@@ -8,6 +8,8 @@ import {
   Notice,
   TabPanel,
 } from "@wordpress/components";
+import SociusFormsTab from "./SociusFormsTab";
+
 
 const SettingsPage = () => {
   const [settings, setSettings] = useState({
@@ -164,19 +166,7 @@ const SettingsPage = () => {
               </Card>
             )}
 
-            {tab.name === "forms" && (
-              <Card>
-                <CardBody>
-                  <h2>{__("Socius Forms Settings", "socius-block-manager")}</h2>
-                  <p>
-                    {__(
-                      "Form settings will be available here.",
-                      "socius-block-manager"
-                    )}
-                  </p>
-                </CardBody>
-              </Card>
-            )}
+            {tab.name === "forms" && <SociusFormsTab />}
 
             {tab.name === "scripts" && (
               <Card>

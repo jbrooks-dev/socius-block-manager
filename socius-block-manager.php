@@ -74,6 +74,17 @@ class SociusBlockManager {
         add_action('wp_body_open', array($this, 'output_body_top_scripts'), 1);
         add_action('wp_footer', array($this, 'output_additional_css'), 998);
         add_action('wp_footer', array($this, 'output_body_bottom_scripts'), 999);
+
+        // Socius Forms
+        add_action('wp_ajax_get_socius_form_settings', array($this, 'ajax_get_socius_form_settings'));
+        add_action('wp_ajax_regenerate_site_id', array($this, 'ajax_regenerate_site_id'));
+
+        // Add the shortcode and scripts
+        add_action("init", array($this, 'register_form_scripts'));
+        add_shortcode('sociusform', array($this, 'display_socius_base_form_root_component'));
+
+        // Add the filter for site ID
+        add_filter("socius_form_site_id", array($this, 'get_socius_form_site_id'));
         
         register_activation_hook(__FILE__, array($this, 'activate_plugin'));
     }
@@ -1140,6 +1151,131 @@ class SociusBlockManager {
             echo "<style>\n" . $settings['additional_css'] . "\n</style>\n";
         }
     }
+
+    /* Socus Forms */
+    // Socius Forms Methods
+    public function ajax_get_socius_form_settings() {
+        check_ajax_referer('socius_block_manager_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_die('Unauthorized');
+        }
+        
+        $settings = $this->get_or_generate_socius_form_settings();
+        wp_send_json_success($settings);
+    }
+
+    public function ajax_regenerate_site_id() {
+        check_ajax_referer('socius_block_manager_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_die('Unauthorized');
+        }
+        
+        $new_site_id = wp_generate_uuid4();
+        $settings = array('site_id' => $new_site_id);
+        
+        update_option('socius_form_settings', $settings);
+        
+        wp_send_json_success(array(
+            'site_id' => $new_site_id,
+            'message' => __('Site ID regenerated successfully!', 'socius-block-manager')
+        ));
+    }
+
+    private function get_or_generate_socius_form_settings() {
+        $settings = get_option('socius_form_settings');
+        if ($settings && isset($settings['site_id'])) {
+            return $settings;
+        }
+        
+        $new_settings = array(
+            'site_id' => wp_generate_uuid4()
+        );
+        
+        add_option('socius_form_settings', $new_settings);
+        return $new_settings;
+    }
+
+    public function get_socius_form_site_id() {
+        $settings = get_option('socius_form_settings');
+        return $settings ? $settings['site_id'] : '';
+    }
+
+    public function register_form_scripts() {
+        wp_register_script('sociusform', 'https://sociusassets.com/sociusForms.js', '', '', true);
+    }
+
+    public function display_socius_base_form_root_component($attributes) {
+        $form_attributes = shortcode_atts(array(
+            'product' => '',
+            'formid' => '',
+            'formname' => '',
+            'formlocation' => '',
+            'enableproductselector' => 'false',
+            'submitbuttontext' => 'Submit',
+            'issticky' => 'false',
+            'optin' => 'false',
+            'disclaimer' => 'false',
+            'spamtype' => '',
+            'hidelabels' => 'false',
+            'buttonclasses' => '',
+            'inputclasses' => '',
+            'inputgroupclasses' => '',
+            'stickyfirstlastname' => 'false',
+            'enablecomments' => 'false',
+            'enableaddress' => 'false',
+            'formheading' => '',
+            'aftersubmit' => '',
+            'thankyouurl' => ''
+        ), $attributes);
+
+        return $this->display_socius_form_mount_component($form_attributes);
+    }
+
+    private function display_socius_form_mount_component($form_attributes) {
+        global $post;
+        $post_slug = $post ? htmlentities($post->post_name) : '';
+
+        if (!has_filter("socius_form_site_id")) {
+            error_log("Socius Form Plugin is missing the 'socius_form_site_id' filter.");
+            return '';
+        }
+
+        $site_id = apply_filters("socius_form_site_id", null);
+
+        wp_enqueue_script('sociusform');
+
+        return <<<HTML
+        <div 
+            class="baseform"
+            data-site-id="{$site_id}"
+            data-page-id="{$post_slug}"
+            data-product-name="{$form_attributes['product']}"
+            data-form-id="{$form_attributes['formid']}"
+            data-form-name="{$form_attributes['formname']}"
+            data-form-location="{$form_attributes['formlocation']}" 
+            data-enable-product-selector="{$form_attributes['enableproductselector']}"
+            data-submit-button-text="{$form_attributes['submitbuttontext']}"
+            data-sticky="{$form_attributes['issticky']}"
+            data-opt-in="{$form_attributes['optin']}"
+            data-disclaimer="{$form_attributes['disclaimer']}"
+            data-spam-type="{$form_attributes['spamtype']}"
+            data-hide-labels="{$form_attributes['hidelabels']}"
+            data-button-classes="{$form_attributes['buttonclasses']}"
+            data-input-classes="{$form_attributes['inputclasses']}"
+            data-input-group-classes="{$form_attributes['inputgroupclasses']}"
+            data-sticky-first-last-name="{$form_attributes['stickyfirstlastname']}"
+            data-thankyou-url="{$form_attributes['thankyouurl']}"
+            data-enable-comments="{$form_attributes['enablecomments']}"
+            data-enable-address="{$form_attributes['enableaddress']}">
+            <template id="formHeading">{$form_attributes['formheading']}</template>
+            <template id="afterSubmit">{$form_attributes['aftersubmit']}</template>
+        </div>
+    HTML;
+    }
+
+    /* End Socius Forms */
 }
 
 // Initialize the plugin
