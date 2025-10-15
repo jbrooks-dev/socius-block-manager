@@ -64,6 +64,16 @@ class SociusBlockManager {
         // Enqueue dynamic button styles
         add_action('wp_enqueue_scripts', array($this, 'enqueue_dynamic_button_styles'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_dynamic_button_styles'));
+
+        // Add these in the __construct() method with other AJAX actions
+        add_action('wp_ajax_get_settings', array($this, 'ajax_get_settings'));
+        add_action('wp_ajax_save_settings', array($this, 'ajax_save_settings'));
+
+        // Add hooks to output custom scripts and CSS
+        add_action('wp_head', array($this, 'output_head_scripts'), 999);
+        add_action('wp_body_open', array($this, 'output_body_top_scripts'), 1);
+        add_action('wp_footer', array($this, 'output_additional_css'), 998);
+        add_action('wp_footer', array($this, 'output_body_bottom_scripts'), 999);
         
         register_activation_hook(__FILE__, array($this, 'activate_plugin'));
     }
@@ -431,6 +441,15 @@ class SociusBlockManager {
             'socius-block-theme-settings',
             array($this, 'render_theme_settings_page')
         );
+
+        add_submenu_page(
+            'socius-block-manager',
+            'Settings',
+            'Settings',
+            'manage_options',
+            'socius-block-settings',
+            array($this, 'render_settings_page')
+        );
         
         add_submenu_page(
             'socius-block-manager',
@@ -494,6 +513,14 @@ class SociusBlockManager {
             wp_die(__('You do not have sufficient permissions to access this page.'));
         }
         echo '<div id="socius-block-manager-theme-settings"></div>';
+    }
+
+    // Add this new method to render the settings page
+    public function render_settings_page() {
+        if (!current_user_can('manage_options')) {
+            wp_die(__('You do not have sufficient permissions to access this page.'));
+        }
+        echo '<div id="socius-block-manager-settings"></div>';
     }
     
     public function render_available_blocks_page() {
@@ -1032,6 +1059,86 @@ class SociusBlockManager {
     public function enqueue_dynamic_button_styles() {
         $custom_css = $this->generate_button_styles_css();
         wp_add_inline_style('wp-block-library', $custom_css);
+    }
+
+    // Add these new methods to the class
+    public function ajax_get_settings() {
+        check_ajax_referer('socius_block_manager_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_die('Unauthorized');
+        }
+        
+        $default_settings = array(
+            'head_js' => '',
+            'body_top_js' => '',
+            'body_bottom_js' => '',
+            'additional_css' => '',
+        );
+        
+        $settings = get_option('socius_custom_scripts', $default_settings);
+        
+        wp_send_json_success($settings);
+    }
+
+    public function ajax_save_settings() {
+        check_ajax_referer('socius_block_manager_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_die('Unauthorized');
+        }
+        
+        $settings = json_decode(stripslashes($_POST['settings']), true);
+        
+        // Sanitize the settings
+        $sanitized_settings = array(
+            'head_js' => isset($settings['head_js']) ? $settings['head_js'] : '',
+            'body_top_js' => isset($settings['body_top_js']) ? $settings['body_top_js'] : '',
+            'body_bottom_js' => isset($settings['body_bottom_js']) ? $settings['body_bottom_js'] : '',
+            'additional_css' => isset($settings['additional_css']) ? $settings['additional_css'] : '',
+        );
+        
+        if (update_option('socius_custom_scripts', $sanitized_settings)) {
+            wp_send_json_success(__('Settings saved successfully!', 'socius-block-manager'));
+        } else {
+            wp_send_json_error(__('Failed to save settings', 'socius-block-manager'));
+        }
+    }
+
+    public function output_head_scripts() {
+        $settings = get_option('socius_custom_scripts', array());
+        
+        if (!empty($settings['head_js'])) {
+            echo "\n<!-- Socius Custom Head Scripts -->\n";
+            echo $settings['head_js'] . "\n";
+        }
+    }
+
+    public function output_body_top_scripts() {
+        $settings = get_option('socius_custom_scripts', array());
+        
+        if (!empty($settings['body_top_js'])) {
+            echo "\n<!-- Socius Custom Body Top Scripts -->\n";
+            echo $settings['body_top_js'] . "\n";
+        }
+    }
+
+    public function output_body_bottom_scripts() {
+        $settings = get_option('socius_custom_scripts', array());
+        
+        if (!empty($settings['body_bottom_js'])) {
+            echo "\n<!-- Socius Custom Body Bottom Scripts -->\n";
+            echo $settings['body_bottom_js'] . "\n";
+        }
+    }
+
+    public function output_additional_css() {
+        $settings = get_option('socius_custom_scripts', array());
+        
+        if (!empty($settings['additional_css'])) {
+            echo "\n<!-- Socius Additional CSS -->\n";
+            echo "<style>\n" . $settings['additional_css'] . "\n</style>\n";
+        }
     }
 }
 

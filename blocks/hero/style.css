@@ -1,3 +1,46 @@
+Hero Block Base Styles
+
+.socius-hero-block {
+    position: relative;
+    width: 100%;
+    margin: 0;
+}
+
+.hero-overlay {
+    position: relative;
+    width: 100%;
+}
+
+.hero-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 80px 40px;
+    text-align: center;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin: 0 0 20px 0;
+    line-height: 1.2;
+}
+
+.hero-subtitle {
+    font-size: 1.5rem;
+    margin: 0 0 40px 0;
+    line-height: 1.5;
+    opacity: 0.95;
+}
+
+.hero-description {
+    font-size: 1.125rem;
+    margin: 0 0 30px 0;
+    line-height: 1.6;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .hero-button {
     display: inline-block;
     padding: var(--hero-button-padding, 15px 35px);
@@ -53,4 +96,259 @@
     color: var(--hero-button-outline-color-hover, #ffffff);
     border-color: var(--hero-button-outline-border-hover, #ffffff);
     transform: translateY(-2px);
+}
+
+/* Single Image Hero */
+.hero-single-image {
+    min-height: 600px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+}
+
+.hero-single-image .hero-overlay {
+    width: 100%;
+    min-height: 600px;
+    display: flex;
+    align-items: center;
+}
+
+/* Carousel Hero */
+.hero-carousel {
+    min-height: 600px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+    position: relative;
+    transition: background-image 0.5s ease-in-out;
+}
+
+.hero-carousel .hero-overlay {
+    width: 100%;
+    min-height: 600px;
+    display: flex;
+    align-items: center;
+}
+
+.carousel-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.3);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    font-size: 2rem;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.carousel-nav:hover {
+    background: rgba(255, 255, 255, 0.5);
+    border-color: rgba(255, 255, 255, 0.8);
+}
+
+.carousel-prev {
+    left: 20px;
+}
+
+.carousel-next {
+    right: 20px;
+}
+
+.carousel-indicators {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 10;
+}
+
+.carousel-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+}
+
+.carousel-indicator.active,
+.carousel-indicator:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: scale(1.2);
+}
+
+/* Hero with Form */
+.hero-with-form {
+    min-height: 600px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.hero-with-form .hero-overlay {
+    min-height: 600px;
+}
+
+.hero-content-with-form {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 80px 40px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+}
+
+.hero-text-content {
+    text-align: left;
+}
+
+.hero-with-form .hero-button-group {
+    justify-content: flex-start;
+}
+
+.hero-form-container {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.hero-form-placeholder {
+    padding: 40px;
+    text-align: center;
+    color: #646970;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.hero-form-placeholder code {
+    display: block;
+    margin: 10px 0;
+    padding: 10px;
+    background: #fff;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+/* Responsive Styles */
+@media (max-width: 1024px) {
+    .hero-content-with-form {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+    
+    .hero-text-content {
+        text-align: center;
+    }
+    
+    .hero-with-form .hero-button-group {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-content {
+        padding: 60px 20px;
+    }
+    
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.25rem;
+    }
+    
+    .hero-description {
+        font-size: 1rem;
+    }
+    
+    .hero-button {
+        padding: 12px 28px;
+        font-size: 1rem;
+    }
+    
+    .hero-single-image,
+    .hero-carousel,
+    .hero-with-form {
+        min-height: 500px;
+    }
+    
+    .hero-single-image .hero-overlay,
+    .hero-carousel .hero-overlay,
+    .hero-with-form .hero-overlay {
+        min-height: 500px;
+    }
+    
+    .carousel-nav {
+        width: 40px;
+        height: 40px;
+        font-size: 1.5rem;
+    }
+    
+    .carousel-prev {
+        left: 10px;
+    }
+    
+    .carousel-next {
+        right: 10px;
+    }
+    
+    .hero-content-with-form {
+        padding: 60px 20px;
+    }
+    
+    .hero-form-container {
+        padding: 30px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: 2rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.1rem;
+    }
+    
+    .hero-button-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .hero-button {
+        width: calc(100%-56px);
+
+    }
+    
+    .hero-single-image,
+    .hero-carousel,
+    .hero-with-form {
+        min-height: 400px;
+    }
+    
+    .hero-single-image .hero-overlay,
+    .hero-carousel .hero-overlay,
+    .hero-with-form .hero-overlay {
+        min-height: 400px;
+    }
 }

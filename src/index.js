@@ -6,6 +6,7 @@ import BlockListPage from "./components/BlockListPage";
 import ThemeSettingsPage from "./components/ThemeSettingsPage";
 import AvailableBlocksPage from "./components/AvailableBlocksPage";
 import "./style.css";
+import SettingsPage from "./components/SettingsPage";
 
 const App = () => {
   const { currentPage, canManageRestrictions } =
@@ -39,6 +40,9 @@ const App = () => {
     case "socius-block-theme-settings":
       return <ThemeSettingsPage />;
 
+    case "socius-block-settings":
+      return <SettingsPage />;
+
     case "socius-block-manager":
     default:
       return <SplashPage />;
@@ -70,6 +74,10 @@ if (settingsElement) {
   render(<App />, settingsElement);
 }
 
+const settingsPageElement = document.getElementById("socius-block-manager-settings");
+if (settingsPageElement) {
+  render(<App />, settingsPageElement);
+}
 
 
 // Render available blocks page

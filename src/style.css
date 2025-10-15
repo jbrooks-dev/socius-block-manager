@@ -926,3 +926,123 @@
         font-size: 13px;
     }
 }
+
+/* Settings Page Styles */
+.socius-settings-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.socius-settings-header {
+    margin-bottom: 30px;
+}
+
+.socius-settings-header h1 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.socius-settings-header p {
+    font-size: 1.1rem;
+    color: #646970;
+}
+
+.socius-settings-tabs .components-tab-panel__tabs {
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 5px;
+}
+
+.socius-settings-tabs .components-button {
+    padding: 10px 20px;
+    border: none;
+    background: transparent;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+}
+
+.socius-settings-tabs .components-button.is-active {
+    border-bottom-color: #2271b1;
+    font-weight: 600;
+    color: #2271b1;
+}
+
+.socius-settings-tabs .components-button:hover {
+    background: #f0f0f0;
+}
+
+.scripts-section {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+.code-textarea textarea {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    background: #f9f9f9;
+}
+
+.scripts-info {
+    margin-top: 20px;
+}
+
+.scripts-info h3 {
+    margin: 0 0 15px 0;
+    font-size: 1.1rem;
+}
+
+.scripts-info ol {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.scripts-info li {
+    margin-bottom: 8px;
+    line-height: 1.6;
+}
+
+.warning-text {
+    margin-top: 20px;
+    padding: 12px;
+    background: #fff8e5;
+    border-left: 4px solid #f0b429;
+    border-radius: 4px;
+}
+
+.warning-text strong {
+    color: #996800;
+}
+
+.socius-settings-actions {
+    position: sticky;
+    bottom: 20px;
+}
+
+.socius-settings-actions .action-buttons {
+    display: flex;
+    justify-content: center;
+}
+
+.socius-settings-actions button {
+    min-width: 200px;
+}
+
+@media (max-width: 768px) {
+    .socius-settings-container {
+        padding: 15px;
+    }
+    
+    .socius-settings-tabs .components-tab-panel__tabs {
+        flex-wrap: wrap;
+    }
+    
+    .socius-settings-tabs .components-button {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+}
