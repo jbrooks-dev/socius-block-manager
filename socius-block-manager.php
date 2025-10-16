@@ -65,7 +65,7 @@ class SociusBlockManager {
         add_action('wp_enqueue_scripts', array($this, 'enqueue_dynamic_button_styles'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_dynamic_button_styles'));
 
-        // Add these in the __construct() method with other AJAX actions
+        // Settings Ajax
         add_action('wp_ajax_get_settings', array($this, 'ajax_get_settings'));
         add_action('wp_ajax_save_settings', array($this, 'ajax_save_settings'));
 
@@ -85,6 +85,13 @@ class SociusBlockManager {
 
         // Add the filter for site ID
         add_filter("socius_form_site_id", array($this, 'get_socius_form_site_id'));
+
+        // PPC Ajax
+        add_action('wp_ajax_get_ppc_settings', array($this, 'ajax_get_ppc_settings'));
+        add_action('wp_ajax_save_ppc_settings', array($this, 'ajax_save_ppc_settings'));
+
+        // Add hook to output PPC script in footer
+        add_action('wp_footer', array($this, 'output_ppc_script'), 997);
         
         register_activation_hook(__FILE__, array($this, 'activate_plugin'));
     }
@@ -1276,6 +1283,206 @@ class SociusBlockManager {
     }
 
     /* End Socius Forms */
+
+
+    /* PPC */
+    // PPC Settings Methods
+    public function ajax_get_ppc_settings() {
+        check_ajax_referer('socius_block_manager_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_die('Unauthorized');
+        }
+        
+        $default_settings = array(
+            'enabled' => false,
+            'geolocation_enabled' => false,
+            'phone_swapping_enabled' => false,
+            'geo_phone_swapping' => false,
+        );
+        
+        $settings = get_option('socius_ppc_settings', $default_settings);
+        
+        wp_send_json_success($settings);
+    }
+
+    public function ajax_save_ppc_settings() {
+        check_ajax_referer('socius_block_manager_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_die('Unauthorized');
+        }
+        
+        $settings = json_decode(stripslashes($_POST['settings']), true);
+        
+        $sanitized_settings = array(
+            'enabled' => isset($settings['enabled']) ? (bool)$settings['enabled'] : false,
+            'geolocation_enabled' => isset($settings['geolocation_enabled']) ? (bool)$settings['geolocation_enabled'] : false,
+            'phone_swapping_enabled' => isset($settings['phone_swapping_enabled']) ? (bool)$settings['phone_swapping_enabled'] : false,
+            'geo_phone_swapping' => isset($settings['geo_phone_swapping']) ? (bool)$settings['geo_phone_swapping'] : false,
+        );
+        
+        if (update_option('socius_ppc_settings', $sanitized_settings)) {
+            wp_send_json_success(__('PPC settings saved successfully!', 'socius-block-manager'));
+        } else {
+            wp_send_json_error(__('Failed to save PPC settings', 'socius-block-manager'));
+        }
+    }
+
+    public function output_ppc_script() {
+        $settings = get_option('socius_ppc_settings', array('enabled' => false));
+        
+        if (!$settings['enabled']) {
+            return;
+        }
+        
+        $geolocation_enabled = isset($settings['geolocation_enabled']) ? $settings['geolocation_enabled'] : false;
+        $phone_swapping_enabled = isset($settings['phone_swapping_enabled']) ? $settings['phone_swapping_enabled'] : false;
+        $geo_phone_swapping = isset($settings['geo_phone_swapping']) ? $settings['geo_phone_swapping'] : false;
+        
+        ?>
+        <!-- Socius PPC Tracking Script -->
+        <script>
+        (function() {
+            'use strict';
+            
+            // Cookie utility functions
+            function setCookie(name, value, days) {
+                var expires = "";
+                if (days) {
+                    var date = new Date();
+                    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                    expires = "; expires=" + date.toUTCString();
+                }
+                document.cookie = name + "=" + (value || "") + expires + "; path=/";
+            }
+            
+            function getCookie(name) {
+                var nameEQ = name + "=";
+                var ca = document.cookie.split(';');
+                for(var i = 0; i < ca.length; i++) {
+                    var c = ca[i];
+                    while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                    if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+                }
+                return null;
+            }
+            
+            // URL parameter function
+            function getUrlParam(name) {
+                var results = new RegExp('[\\?&]' + name + '=([^&#]*)').exec(window.location.href);
+                if (results == null) {
+                    return null;
+                }
+                return results[1] || 0;
+            }
+            
+            // Setting source cookie based on URL parameter ?source=
+            var paramValue = getUrlParam('source');
+            if (paramValue) {
+                setCookie('source', paramValue, 30);
+            }
+            
+            // Filling forms .ppc-source field based on source cookie
+            var cookieSrc = getCookie('source');
+            if (cookieSrc) {
+                var ppcSourceFields = document.querySelectorAll('.ppc-source');
+                ppcSourceFields.forEach(function(field) {
+                    field.value = cookieSrc;
+                });
+            }
+            
+            // Set referrer cookie if a referrer is found
+            var referrer = 'referrer';
+            
+            if (!getCookie(referrer) && document.referrer) {
+                setCookie(referrer, document.referrer, 30);
+                
+                var referrerFields = document.querySelectorAll('.referrer');
+                referrerFields.forEach(function(field) {
+                    field.value = document.referrer;
+                });
+            } else {
+                console.log("No Referrer Exists");
+            }
+            
+            // Overwrite referrer variable if URL parameter ?referrer=
+            var referrerSrc = getUrlParam(referrer) ? decodeURIComponent(getUrlParam(referrer)) : getCookie(referrer);
+            
+            // Filling forms .referrer field based on referrer cookie
+            if (referrerSrc) {
+                var referrerFields = document.querySelectorAll('.referrer');
+                referrerFields.forEach(function(field) {
+                    field.value = referrerSrc;
+                });
+            }
+            
+            <?php if (!$geolocation_enabled) : ?>
+                // Get traffic type if geolocation plugin is disabled
+                var domainHost = location.host;
+                var trafficType = !referrerSrc || referrerSrc.indexOf(domainHost) >= 0 ? 'direct' : 'organic';
+                trafficType = cookieSrc ? 'paid' : trafficType;
+                <?php else : ?>
+                // Set trafficType by grabbing value from geolocation plugin
+                var trafficType = typeof geo !== 'undefined' && geo.traffic_type ? geo.traffic_type : 'direct';
+                <?php endif; ?>
+                
+                <?php if ($phone_swapping_enabled) : ?>
+                /******************************
+                PHONE SWAPPING FUNCTIONALITY 
+                ******************************/
+                // Utility function for swapping phone HTML
+                function swapPhones(phone) {
+                    var phoneJustNumbers = phone.replace(/[^0-9]/g, '');
+                    
+                    // Swap tel links
+                    var telLinks = document.querySelectorAll('a[href*="tel:"]:not(.nochange)');
+                    telLinks.forEach(function(link) {
+                        link.setAttribute('href', 'tel:' + phoneJustNumbers);
+                    });
+                    
+                    // Swap phone number text
+                    var phoneNumbers = document.querySelectorAll('.phone-number');
+                    phoneNumbers.forEach(function(element) {
+                        element.textContent = phone;
+                    });
+                    
+                    // Handle phone groups
+                    var phoneGroups = document.querySelectorAll('.phone-group');
+                    phoneGroups.forEach(function(group) {
+                        var phoneItems = group.querySelectorAll('.phone-item:not(:first-child)');
+                        phoneItems.forEach(function(item) {
+                            item.style.display = 'none';
+                        });
+                        
+                        var numberLabels = group.querySelectorAll('.phone-item .number-label');
+                        numberLabels.forEach(function(label) {
+                            label.style.display = 'none';
+                        });
+                    });
+                    
+                    // Hide phone2 boxes
+                    var phone2Boxes = document.querySelectorAll('.phone2-box');
+                    phone2Boxes.forEach(function(box) {
+                        box.style.display = 'none';
+                    });
+                }
+                
+                <?php if ($geolocation_enabled && $geo_phone_swapping) : ?>
+                // Default geolocation phone swapping functionality
+                if (typeof geo !== 'undefined' && geo.location && geo.location.phone) {
+                    swapPhones(geo.location.phone);
+                }
+                <?php endif; ?>
+            
+            <?php endif; ?>
+            
+        })();
+        </script>
+        <?php
+    }
+
+    /* End PPC */
 }
 
 // Initialize the plugin

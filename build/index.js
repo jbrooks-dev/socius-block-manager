@@ -10240,6 +10240,166 @@ const BlockRestrictionsPage = () => {
 
 /***/ }),
 
+/***/ "./src/components/PPCTab.js":
+/*!**********************************!*\
+  !*** ./src/components/PPCTab.js ***!
+  \**********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__);
+
+
+
+
+const PPCTab = () => {
+  const [settings, setSettings] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)({
+    enabled: false,
+    geolocation_enabled: false,
+    phone_swapping_enabled: false,
+    geo_phone_swapping: false
+  });
+  const [loading, setLoading] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(true);
+  const [saving, setSaving] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
+  const [notice, setNotice] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
+  const {
+    ajaxUrl,
+    nonce
+  } = window.sociusBlockManager || {};
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
+    loadSettings();
+  }, []);
+  const loadSettings = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("action", "get_ppc_settings");
+      formData.append("nonce", nonce);
+      const response = await fetch(ajaxUrl, {
+        method: "POST",
+        body: formData
+      });
+      const result = await response.json();
+      if (result.success && result.data) {
+        setSettings(result.data);
+      }
+    } catch (error) {
+      console.error("Error loading PPC settings:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const saveSettings = async () => {
+    setSaving(true);
+    setNotice(null);
+    try {
+      const formData = new FormData();
+      formData.append("action", "save_ppc_settings");
+      formData.append("nonce", nonce);
+      formData.append("settings", JSON.stringify(settings));
+      const response = await fetch(ajaxUrl, {
+        method: "POST",
+        body: formData
+      });
+      const result = await response.json();
+      if (result.success) {
+        setNotice({
+          type: "success",
+          message: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("PPC settings saved successfully!", "socius-block-manager")
+        });
+      } else {
+        setNotice({
+          type: "error",
+          message: result.data || (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Failed to save PPC settings", "socius-block-manager")
+        });
+      }
+    } catch (error) {
+      setNotice({
+        type: "error",
+        message: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Error saving PPC settings", "socius-block-manager")
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+  const updateSetting = (key, value) => {
+    setSettings(prev => ({
+      ...prev,
+      [key]: value
+    }));
+  };
+  if (loading) {
+    return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      className: "socius-loading"
+    }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Loading PPC settings...", "socius-block-manager")));
+  }
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "socius-ppc-tab"
+  }, notice && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Notice, {
+    status: notice.type,
+    onRemove: () => setNotice(null),
+    isDismissible: true
+  }, notice.message), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Card, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.CardBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h2", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("PPC Tracking & Phone Swapping", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Configure PPC tracking scripts and dynamic phone swapping functionality for your site.", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "ppc-settings-section"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToggleControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Enable PPC Tracking", "socius-block-manager"),
+    checked: settings.enabled,
+    onChange: value => updateSetting("enabled", value),
+    help: settings.enabled ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("PPC tracking script will be injected into the footer of all pages.", "socius-block-manager") : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Enable to activate PPC tracking and phone swapping functionality.", "socius-block-manager")
+  }), settings.enabled && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "setting-divider"
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToggleControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Enable Geolocation", "socius-block-manager"),
+    checked: settings.geolocation_enabled,
+    onChange: value => updateSetting("geolocation_enabled", value),
+    help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Enable if you are using a geolocation plugin to determine traffic type.", "socius-block-manager")
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToggleControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Enable Phone Swapping", "socius-block-manager"),
+    checked: settings.phone_swapping_enabled,
+    onChange: value => updateSetting("phone_swapping_enabled", value),
+    help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Enable dynamic phone number swapping based on traffic conditions.", "socius-block-manager")
+  }), settings.phone_swapping_enabled && settings.geolocation_enabled && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToggleControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Enable Geo Phone Swapping", "socius-block-manager"),
+    checked: settings.geo_phone_swapping,
+    onChange: value => updateSetting("geo_phone_swapping", value),
+    help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Use geolocation data to automatically swap phone numbers based on visitor location.", "socius-block-manager"),
+    className: "nested-setting"
+  }))))), settings.enabled && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Card, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.CardBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h3", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("How It Works", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "ppc-info-section"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h4", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Tracking Features:", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("ul", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Source Tracking:", "socius-block-manager")), " ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Captures and stores the ?source= URL parameter in a cookie for 30 days.", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Referrer Tracking:", "socius-block-manager")), " ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Automatically captures and stores the referring URL in a cookie.", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Traffic Type Detection:", "socius-block-manager")), " ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Automatically determines if traffic is direct, organic, or paid.", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Form Auto-Fill:", "socius-block-manager")), " ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Automatically fills form fields with class .ppc-source and .referrer with tracked data.", "socius-block-manager"))), settings.phone_swapping_enabled && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h4", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Phone Swapping Features:", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("ul", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Dynamic Phone Numbers:", "socius-block-manager")), " ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Swaps phone numbers in elements with class .phone-number", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Tel Links:", "socius-block-manager")), " ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Updates all tel: links automatically (except those with .nochange class)", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Phone Groups:", "socius-block-manager")), " ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Manages visibility of phone groups and labels", "socius-block-manager"))))))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Card, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.CardBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h3", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Implementation Guide", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "ppc-implementation"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h4", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Form Fields:", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Add these classes to your form fields to auto-populate with tracking data:", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "code-example"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("code", null, `<input type="hidden" class="ppc-source" name="source" />`), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("code", null, `<input type="hidden" class="referrer" name="referrer" />`)), settings.phone_swapping_enabled && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h4", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Phone Number Elements:", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Use these classes for dynamic phone swapping:", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "code-example"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("code", null, `<span class="phone-number">555-123-4567</span>`), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("code", null, `<a href="tel:5551234567">Call Us</a>`), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("code", null, `<a href="tel:5551234567" class="nochange">Static Number</a>`))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h4", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("URL Parameters:", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Supported URL parameters:", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "code-example"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("code", null, `?source=google-ads`), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("code", null, `?referrer=custom-referrer`))))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Card, {
+    className: "ppc-warning-card"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.CardBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h3", null, "\u26A0\uFE0F ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Important Notes", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("ul", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("The script will be injected before the closing </body> tag on all frontend pages.", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Cookies are set with a 30-day expiration and site-wide path.", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Make sure your forms have the appropriate classes for auto-population to work.", "socius-block-manager")), settings.geolocation_enabled && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Geolocation features require a compatible geolocation plugin that sets the 'geo' JavaScript object.", "socius-block-manager")))))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Card, {
+    className: "socius-ppc-actions"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.CardBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "action-buttons"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Button, {
+    isPrimary: true,
+    onClick: saveSettings,
+    isBusy: saving,
+    disabled: saving
+  }, saving ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Saving...", "socius-block-manager") : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Save PPC Settings", "socius-block-manager"))))));
+};
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (PPCTab);
+
+/***/ }),
+
 /***/ "./src/components/SettingsPage.js":
 /*!****************************************!*\
   !*** ./src/components/SettingsPage.js ***!
@@ -10259,6 +10419,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
 /* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var _SociusFormsTab__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./SociusFormsTab */ "./src/components/SociusFormsTab.js");
+/* harmony import */ var _PPCTab__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./PPCTab */ "./src/components/PPCTab.js");
+
 
 
 
@@ -10274,6 +10436,7 @@ const SettingsPage = () => {
   const [loading, setLoading] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(true);
   const [saving, setSaving] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
   const [notice, setNotice] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
+  const [activeTab, setActiveTab] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)("general");
   const {
     ajaxUrl,
     nonce
@@ -10355,6 +10518,7 @@ const SettingsPage = () => {
   }, notice.message), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.TabPanel, {
     className: "socius-settings-tabs",
     activeClass: "is-active",
+    onSelect: tabName => setActiveTab(tabName),
     tabs: [{
       name: "general",
       title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("General", "socius-block-manager"),
@@ -10367,8 +10531,12 @@ const SettingsPage = () => {
       name: "scripts",
       title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Scripts", "socius-block-manager"),
       className: "tab-scripts"
+    }, {
+      name: "ppc",
+      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("PPC", "socius-block-manager"),
+      className: "tab-ppc"
     }]
-  }, tab => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, tab.name === "general" && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Card, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.CardBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h2", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("General Settings", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("General settings will be available here.", "socius-block-manager")))), tab.name === "forms" && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_SociusFormsTab__WEBPACK_IMPORTED_MODULE_4__["default"], null), tab.name === "scripts" && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Card, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.CardBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h2", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Custom Scripts & CSS", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Add custom JavaScript and CSS to your site. These will be output in the appropriate locations on all frontend pages.", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+  }, tab => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, tab.name === "general" && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Card, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.CardBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h2", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("General Settings", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("General settings will be available here.", "socius-block-manager")))), tab.name === "forms" && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_SociusFormsTab__WEBPACK_IMPORTED_MODULE_4__["default"], null), tab.name === "scripts" && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Card, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.CardBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h2", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Custom Scripts & CSS", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Add custom JavaScript and CSS to your site. These will be output in the appropriate locations on all frontend pages.", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "scripts-section"
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.TextareaControl, {
     label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Head JS", "socius-block-manager"),
@@ -10402,7 +10570,7 @@ const SettingsPage = () => {
     className: "scripts-info"
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Card, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.CardBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h3", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Output Order", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("ol", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Head JS", "socius-block-manager")), " - ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Inside <head> tags", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Body - Top JS", "socius-block-manager")), " - ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("After opening <body> tag", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Additional CSS", "socius-block-manager")), " - ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Before closing </body> tag", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Body - Bottom JS", "socius-block-manager")), " - ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Before closing </body> tag (after CSS)", "socius-block-manager"))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
     className: "warning-text"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Warning:", "socius-block-manager")), " ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Be careful when adding custom scripts. Invalid code can break your site.", "socius-block-manager"))))))))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Card, {
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Warning:", "socius-block-manager")), " ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Be careful when adding custom scripts. Invalid code can break your site.", "socius-block-manager"))))))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Card, {
     className: "socius-settings-actions"
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.CardBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "action-buttons"
@@ -10411,7 +10579,7 @@ const SettingsPage = () => {
     onClick: saveSettings,
     isBusy: saving,
     disabled: saving
-  }, saving ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Saving...", "socius-block-manager") : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Save Settings", "socius-block-manager"))))));
+  }, saving ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Saving...", "socius-block-manager") : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Save Settings", "socius-block-manager")))))), tab.name === "ppc" && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_PPCTab__WEBPACK_IMPORTED_MODULE_5__["default"], null))));
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (SettingsPage);
 

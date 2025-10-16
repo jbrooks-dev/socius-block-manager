@@ -9,7 +9,7 @@ import {
   TabPanel,
 } from "@wordpress/components";
 import SociusFormsTab from "./SociusFormsTab";
-
+import PPCTab from "./PPCTab";
 
 const SettingsPage = () => {
   const [settings, setSettings] = useState({
@@ -22,6 +22,7 @@ const SettingsPage = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState(null);
+  const [activeTab, setActiveTab] = useState("general");
 
   const { ajaxUrl, nonce } = window.sociusBlockManager || {};
 
@@ -132,6 +133,7 @@ const SettingsPage = () => {
       <TabPanel
         className="socius-settings-tabs"
         activeClass="is-active"
+        onSelect={(tabName) => setActiveTab(tabName)}
         tabs={[
           {
             name: "general",
@@ -147,6 +149,11 @@ const SettingsPage = () => {
             name: "scripts",
             title: __("Scripts", "socius-block-manager"),
             className: "tab-scripts",
+          },
+          {
+            name: "ppc",
+            title: __("PPC", "socius-block-manager"),
+            className: "tab-ppc",
           },
         ]}
       >
@@ -169,148 +176,156 @@ const SettingsPage = () => {
             {tab.name === "forms" && <SociusFormsTab />}
 
             {tab.name === "scripts" && (
-              <Card>
-                <CardBody>
-                  <h2>{__("Custom Scripts & CSS", "socius-block-manager")}</h2>
-                  <p>
-                    {__(
-                      "Add custom JavaScript and CSS to your site. These will be output in the appropriate locations on all frontend pages.",
-                      "socius-block-manager"
-                    )}
-                  </p>
-
-                  <div className="scripts-section">
-                    <TextareaControl
-                      label={__("Head JS", "socius-block-manager")}
-                      help={__(
-                        "JavaScript to be added between the <head> tags. Do not include <script> tags.",
+              <>
+                <Card>
+                  <CardBody>
+                    <h2>
+                      {__("Custom Scripts & CSS", "socius-block-manager")}
+                    </h2>
+                    <p>
+                      {__(
+                        "Add custom JavaScript and CSS to your site. These will be output in the appropriate locations on all frontend pages.",
                         "socius-block-manager"
                       )}
-                      value={settings.head_js}
-                      onChange={(value) => updateSetting("head_js", value)}
-                      rows={8}
-                      className="code-textarea"
-                    />
+                    </p>
 
-                    <TextareaControl
-                      label={__("Body - Top JS", "socius-block-manager")}
-                      help={__(
-                        "JavaScript to be added just after the opening <body> tag. Do not include <script> tags.",
-                        "socius-block-manager"
-                      )}
-                      value={settings.body_top_js}
-                      onChange={(value) => updateSetting("body_top_js", value)}
-                      rows={8}
-                      className="code-textarea"
-                    />
+                    <div className="scripts-section">
+                      <TextareaControl
+                        label={__("Head JS", "socius-block-manager")}
+                        help={__(
+                          "JavaScript to be added between the <head> tags. Do not include <script> tags.",
+                          "socius-block-manager"
+                        )}
+                        value={settings.head_js}
+                        onChange={(value) => updateSetting("head_js", value)}
+                        rows={8}
+                        className="code-textarea"
+                      />
 
-                    <TextareaControl
-                      label={__("Body - Bottom JS", "socius-block-manager")}
-                      help={__(
-                        "JavaScript to be added just before the closing </body> tag. Do not include <script> tags.",
-                        "socius-block-manager"
-                      )}
-                      value={settings.body_bottom_js}
-                      onChange={(value) =>
-                        updateSetting("body_bottom_js", value)
-                      }
-                      rows={8}
-                      className="code-textarea"
-                    />
+                      <TextareaControl
+                        label={__("Body - Top JS", "socius-block-manager")}
+                        help={__(
+                          "JavaScript to be added just after the opening <body> tag. Do not include <script> tags.",
+                          "socius-block-manager"
+                        )}
+                        value={settings.body_top_js}
+                        onChange={(value) =>
+                          updateSetting("body_top_js", value)
+                        }
+                        rows={8}
+                        className="code-textarea"
+                      />
 
-                    <TextareaControl
-                      label={__("Additional CSS", "socius-block-manager")}
-                      help={__(
-                        "CSS to be added in the footer, before Body - Bottom JS. Do not include <style> tags.",
-                        "socius-block-manager"
-                      )}
-                      value={settings.additional_css}
-                      onChange={(value) =>
-                        updateSetting("additional_css", value)
-                      }
-                      rows={8}
-                      className="code-textarea"
-                    />
-                  </div>
+                      <TextareaControl
+                        label={__("Body - Bottom JS", "socius-block-manager")}
+                        help={__(
+                          "JavaScript to be added just before the closing </body> tag. Do not include <script> tags.",
+                          "socius-block-manager"
+                        )}
+                        value={settings.body_bottom_js}
+                        onChange={(value) =>
+                          updateSetting("body_bottom_js", value)
+                        }
+                        rows={8}
+                        className="code-textarea"
+                      />
 
-                  <div className="scripts-info">
-                    <Card>
-                      <CardBody>
-                        <h3>{__("Output Order", "socius-block-manager")}</h3>
-                        <ol>
-                          <li>
+                      <TextareaControl
+                        label={__("Additional CSS", "socius-block-manager")}
+                        help={__(
+                          "CSS to be added in the footer, before Body - Bottom JS. Do not include <style> tags.",
+                          "socius-block-manager"
+                        )}
+                        value={settings.additional_css}
+                        onChange={(value) =>
+                          updateSetting("additional_css", value)
+                        }
+                        rows={8}
+                        className="code-textarea"
+                      />
+                    </div>
+
+                    <div className="scripts-info">
+                      <Card>
+                        <CardBody>
+                          <h3>{__("Output Order", "socius-block-manager")}</h3>
+                          <ol>
+                            <li>
+                              <strong>
+                                {__("Head JS", "socius-block-manager")}
+                              </strong>
+                              {" - "}
+                              {__("Inside <head> tags", "socius-block-manager")}
+                            </li>
+                            <li>
+                              <strong>
+                                {__("Body - Top JS", "socius-block-manager")}
+                              </strong>
+                              {" - "}
+                              {__(
+                                "After opening <body> tag",
+                                "socius-block-manager"
+                              )}
+                            </li>
+                            <li>
+                              <strong>
+                                {__("Additional CSS", "socius-block-manager")}
+                              </strong>
+                              {" - "}
+                              {__(
+                                "Before closing </body> tag",
+                                "socius-block-manager"
+                              )}
+                            </li>
+                            <li>
+                              <strong>
+                                {__("Body - Bottom JS", "socius-block-manager")}
+                              </strong>
+                              {" - "}
+                              {__(
+                                "Before closing </body> tag (after CSS)",
+                                "socius-block-manager"
+                              )}
+                            </li>
+                          </ol>
+                          <p className="warning-text">
                             <strong>
-                              {__("Head JS", "socius-block-manager")}
-                            </strong>
-                            {" - "}
-                            {__("Inside <head> tags", "socius-block-manager")}
-                          </li>
-                          <li>
-                            <strong>
-                              {__("Body - Top JS", "socius-block-manager")}
-                            </strong>
-                            {" - "}
+                              {__("Warning:", "socius-block-manager")}
+                            </strong>{" "}
                             {__(
-                              "After opening <body> tag",
+                              "Be careful when adding custom scripts. Invalid code can break your site.",
                               "socius-block-manager"
                             )}
-                          </li>
-                          <li>
-                            <strong>
-                              {__("Additional CSS", "socius-block-manager")}
-                            </strong>
-                            {" - "}
-                            {__(
-                              "Before closing </body> tag",
-                              "socius-block-manager"
-                            )}
-                          </li>
-                          <li>
-                            <strong>
-                              {__("Body - Bottom JS", "socius-block-manager")}
-                            </strong>
-                            {" - "}
-                            {__(
-                              "Before closing </body> tag (after CSS)",
-                              "socius-block-manager"
-                            )}
-                          </li>
-                        </ol>
-                        <p className="warning-text">
-                          <strong>
-                            {__("Warning:", "socius-block-manager")}
-                          </strong>{" "}
-                          {__(
-                            "Be careful when adding custom scripts. Invalid code can break your site.",
-                            "socius-block-manager"
-                          )}
-                        </p>
-                      </CardBody>
-                    </Card>
-                  </div>
-                </CardBody>
-              </Card>
+                          </p>
+                        </CardBody>
+                      </Card>
+                    </div>
+                  </CardBody>
+                </Card>
+
+                <Card className="socius-settings-actions">
+                  <CardBody>
+                    <div className="action-buttons">
+                      <Button
+                        isPrimary
+                        onClick={saveSettings}
+                        isBusy={saving}
+                        disabled={saving}
+                      >
+                        {saving
+                          ? __("Saving...", "socius-block-manager")
+                          : __("Save Settings", "socius-block-manager")}
+                      </Button>
+                    </div>
+                  </CardBody>
+                </Card>
+              </>
             )}
+
+            {tab.name === "ppc" && <PPCTab />}
           </>
         )}
       </TabPanel>
-
-      <Card className="socius-settings-actions">
-        <CardBody>
-          <div className="action-buttons">
-            <Button
-              isPrimary
-              onClick={saveSettings}
-              isBusy={saving}
-              disabled={saving}
-            >
-              {saving
-                ? __("Saving...", "socius-block-manager")
-                : __("Save Settings", "socius-block-manager")}
-            </Button>
-          </div>
-        </CardBody>
-      </Card>
     </div>
   );
 };
