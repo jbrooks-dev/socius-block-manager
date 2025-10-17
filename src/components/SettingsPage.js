@@ -1,3 +1,4 @@
+import BugMeBarTab from "./BugMeBar";
 import { useState, useEffect } from "@wordpress/element";
 import { __ } from "@wordpress/i18n";
 import {
@@ -154,6 +155,11 @@ const SettingsPage = () => {
             name: "ppc",
             title: __("PPC", "socius-block-manager"),
             className: "tab-ppc",
+          },
+          {
+            name: "bugmebar",
+            title: __("BugMe Bar", "socius-block-manager"),
+            className: "tab-bugmebar",
           },
         ]}
       >
@@ -323,6 +329,7 @@ const SettingsPage = () => {
             )}
 
             {tab.name === "ppc" && <PPCTab />}
+            {tab.name === "bugmebar" && <BugMeBarTab />}
           </>
         )}
       </TabPanel>

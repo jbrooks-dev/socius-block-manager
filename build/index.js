@@ -10240,6 +10240,391 @@ const BlockRestrictionsPage = () => {
 
 /***/ }),
 
+/***/ "./src/components/BugMeBar.js":
+/*!************************************!*\
+  !*** ./src/components/BugMeBar.js ***!
+  \************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _WysiwygEditor__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./WysiwygEditor */ "./src/components/WysiwygEditor.js");
+
+
+
+
+
+const BugMeBarTab = () => {
+  const [settings, setSettings] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)({
+    enabled: false,
+    sticky: true,
+    is_header_sticky: false,
+    content: "",
+    background_color: "#2271b1",
+    text_color: "#ffffff",
+    schedule_enabled: false,
+    start_date: "",
+    end_date: "",
+    padding_top: 10,
+    padding_bottom: 10,
+    padding_left: 10,
+    padding_right: 10,
+    text_align: "center"
+  });
+  const [loading, setLoading] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(true);
+  const [saving, setSaving] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
+  const [notice, setNotice] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
+  const {
+    ajaxUrl,
+    nonce
+  } = window.sociusBlockManager || {};
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
+    loadSettings();
+  }, []);
+  const loadSettings = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("action", "get_bugme_bar_settings");
+      formData.append("nonce", nonce);
+      const response = await fetch(ajaxUrl, {
+        method: "POST",
+        body: formData
+      });
+      const result = await response.json();
+      if (result.success && result.data) {
+        setSettings(result.data);
+      }
+    } catch (error) {
+      console.error("Error loading BugMe Bar settings:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const saveSettings = async () => {
+    setSaving(true);
+    setNotice(null);
+    try {
+      const formData = new FormData();
+      formData.append("action", "save_bugme_bar_settings");
+      formData.append("nonce", nonce);
+      formData.append("settings", JSON.stringify(settings));
+      const response = await fetch(ajaxUrl, {
+        method: "POST",
+        body: formData
+      });
+      const result = await response.json();
+      if (result.success) {
+        setNotice({
+          type: "success",
+          message: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("BugMe Bar settings saved successfully!", "socius-block-manager")
+        });
+      } else {
+        setNotice({
+          type: "error",
+          message: result.data || (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Failed to save BugMe Bar settings", "socius-block-manager")
+        });
+      }
+    } catch (error) {
+      setNotice({
+        type: "error",
+        message: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Error saving BugMe Bar settings", "socius-block-manager")
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+  const updateSetting = (key, value) => {
+    setSettings(prev => ({
+      ...prev,
+      [key]: value
+    }));
+  };
+  const parseColor = color => {
+    if (typeof color === "object" && color !== null) {
+      return color;
+    }
+    if (typeof color !== "string") {
+      return {
+        r: 0,
+        g: 0,
+        b: 0,
+        a: 1
+      };
+    }
+    if (color.startsWith("rgba") || color.startsWith("rgb")) {
+      const match = color.match(/rgba?\((\d+),?\s*(\d+),?\s*(\d+),?\s*([\d.]+)?\)/);
+      if (match) {
+        return {
+          r: parseInt(match[1]),
+          g: parseInt(match[2]),
+          b: parseInt(match[3]),
+          a: match[4] ? parseFloat(match[4]) : 1
+        };
+      }
+    }
+    if (color.startsWith("#")) {
+      const hex = color.replace("#", "");
+      if (hex.length === 6) {
+        return {
+          r: parseInt(hex.substr(0, 2), 16),
+          g: parseInt(hex.substr(2, 2), 16),
+          b: parseInt(hex.substr(4, 2), 16),
+          a: 1
+        };
+      }
+    }
+    return color;
+  };
+  const formatColor = color => {
+    if (typeof color === "object" && color !== null && color.r !== undefined) {
+      if (color.a !== undefined && color.a < 1) {
+        return `rgba(${Math.round(color.r)}, ${Math.round(color.g)}, ${Math.round(color.b)}, ${color.a})`;
+      }
+      const toHex = n => {
+        const hex = Math.round(n).toString(16);
+        return hex.length === 1 ? "0" + hex : hex;
+      };
+      return `#${toHex(color.r)}${toHex(color.g)}${toHex(color.b)}`;
+    }
+    return color;
+  };
+  if (loading) {
+    return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      className: "socius-loading"
+    }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Loading BugMe Bar settings...", "socius-block-manager")));
+  }
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "socius-bugme-bar-tab"
+  }, notice && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Notice, {
+    status: notice.type,
+    onRemove: () => setNotice(null),
+    isDismissible: true
+  }, notice.message), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Card, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.CardBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h2", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("BugMe Bar Settings", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Configure a notification bar that appears at the top of your website.", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "bugme-bar-settings-section"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToggleControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Enable BugMe Bar", "socius-block-manager"),
+    checked: settings.enabled,
+    onChange: value => updateSetting("enabled", value),
+    help: settings.enabled ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("BugMe Bar is currently enabled and will display on your site.", "socius-block-manager") : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Enable to activate the BugMe Bar on your site.", "socius-block-manager")
+  }), settings.enabled && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "setting-divider"
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToggleControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Sticky Bar", "socius-block-manager"),
+    checked: settings.sticky,
+    onChange: value => updateSetting("sticky", value),
+    help: settings.sticky ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Bar will remain fixed at the top when scrolling.", "socius-block-manager") : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Bar will disappear when user scrolls down.", "socius-block-manager")
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToggleControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Is Header Sticky?", "socius-block-manager"),
+    checked: settings.is_header_sticky,
+    onChange: value => updateSetting("is_header_sticky", value),
+    help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Enable if your site has a sticky header that needs extra padding to accommodate the BugMe Bar.", "socius-block-manager")
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "setting-divider"
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "bugme-bar-content-editor"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+    className: "components-base-control__label"
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Bar Content", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
+    className: "components-base-control__help"
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Enter the message to display in the BugMe Bar. Use the editor toolbar to format your content.", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_WysiwygEditor__WEBPACK_IMPORTED_MODULE_4__["default"], {
+    value: settings.content,
+    onChange: value => updateSetting("content", value),
+    editorId: "bugme-bar-wysiwyg-editor"
+  })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "setting-divider"
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "bugme-bar-alignment"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.SelectControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Text Alignment", "socius-block-manager"),
+    value: settings.text_align,
+    options: [{
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Left", "socius-block-manager"),
+      value: "left"
+    }, {
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Center", "socius-block-manager"),
+      value: "center"
+    }, {
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Right", "socius-block-manager"),
+      value: "right"
+    }],
+    onChange: value => updateSetting("text_align", value),
+    help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Choose how the content is aligned within the bar.", "socius-block-manager")
+  })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "setting-divider"
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "bugme-bar-padding"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h3", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Padding", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
+    className: "components-base-control__help"
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Control the spacing around the content inside the bar.", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "padding-controls-grid"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.RangeControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Top", "socius-block-manager"),
+    value: settings.padding_top,
+    onChange: value => updateSetting("padding_top", value),
+    min: 0,
+    max: 50,
+    step: 1,
+    help: `${settings.padding_top}px`
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.RangeControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Bottom", "socius-block-manager"),
+    value: settings.padding_bottom,
+    onChange: value => updateSetting("padding_bottom", value),
+    min: 0,
+    max: 50,
+    step: 1,
+    help: `${settings.padding_bottom}px`
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.RangeControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Left", "socius-block-manager"),
+    value: settings.padding_left,
+    onChange: value => updateSetting("padding_left", value),
+    min: 0,
+    max: 100,
+    step: 1,
+    help: `${settings.padding_left}px`
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.RangeControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Right", "socius-block-manager"),
+    value: settings.padding_right,
+    onChange: value => updateSetting("padding_right", value),
+    min: 0,
+    max: 100,
+    step: 1,
+    help: `${settings.padding_right}px`
+  })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Button, {
+    isSecondary: true,
+    isSmall: true,
+    onClick: () => {
+      updateSetting("padding_top", 10);
+      updateSetting("padding_bottom", 10);
+      updateSetting("padding_left", 10);
+      updateSetting("padding_right", 10);
+    },
+    style: {
+      marginTop: "10px"
+    }
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Reset to Default (10px)", "socius-block-manager"))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "setting-divider"
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "bugme-bar-colors"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "color-control-group"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+    className: "components-base-control__label"
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Background Color", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "color-picker-wrapper"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ColorPicker, {
+    color: parseColor(settings.background_color),
+    onChange: color => updateSetting("background_color", formatColor(color)),
+    enableAlpha: true
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.TextControl, {
+    value: settings.background_color,
+    onChange: value => updateSetting("background_color", value)
+  }))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "color-control-group"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+    className: "components-base-control__label"
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Text Color", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "color-picker-wrapper"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ColorPicker, {
+    color: parseColor(settings.text_color),
+    onChange: color => updateSetting("text_color", formatColor(color)),
+    enableAlpha: true
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.TextControl, {
+    value: settings.text_color,
+    onChange: value => updateSetting("text_color", value)
+  })))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "setting-divider"
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "bugme-bar-schedule"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToggleControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Enable Schedule", "socius-block-manager"),
+    checked: settings.schedule_enabled,
+    onChange: value => updateSetting("schedule_enabled", value),
+    help: settings.schedule_enabled ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Schedule is enabled. Bar will only show within the date range below.", "socius-block-manager") : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Schedule is disabled. Bar will always show when enabled (ignoring any dates below).", "socius-block-manager")
+  }), settings.schedule_enabled && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "setting-divider"
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h3", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Display Schedule", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
+    className: "components-base-control__help"
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Set specific dates when the BugMe Bar should be visible.", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "date-picker-group"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "date-picker-field"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+    className: "components-base-control__label"
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Start Date & Time", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.DateTimePicker, {
+    currentDate: settings.start_date || null,
+    onChange: date => updateSetting("start_date", date),
+    is12Hour: true
+  }), settings.start_date && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Button, {
+    isSmall: true,
+    isDestructive: true,
+    onClick: () => updateSetting("start_date", ""),
+    style: {
+      marginTop: "10px"
+    }
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Clear Start Date", "socius-block-manager"))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "date-picker-field"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+    className: "components-base-control__label"
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("End Date & Time", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.DateTimePicker, {
+    currentDate: settings.end_date || null,
+    onChange: date => updateSetting("end_date", date),
+    is12Hour: true
+  }), settings.end_date && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Button, {
+    isSmall: true,
+    isDestructive: true,
+    onClick: () => updateSetting("end_date", ""),
+    style: {
+      marginTop: "10px"
+    }
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Clear End Date", "socius-block-manager")))))))))), settings.enabled && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Card, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.CardBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h3", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Preview", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "bugme-bar-preview",
+    style: {
+      backgroundColor: settings.background_color,
+      color: settings.text_color,
+      paddingTop: `${settings.padding_top}px`,
+      paddingBottom: `${settings.padding_bottom}px`,
+      paddingLeft: `${settings.padding_left}px`,
+      paddingRight: `${settings.padding_right}px`,
+      textAlign: settings.text_align,
+      borderRadius: "4px",
+      minHeight: "50px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: settings.text_align === "center" ? "center" : settings.text_align === "right" ? "flex-end" : "flex-start"
+    }
+  }, settings.content ? (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    dangerouslySetInnerHTML: {
+      __html: settings.content
+    }
+  }) : (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
+    style: {
+      opacity: 0.5
+    }
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Your BugMe Bar content will appear here", "socius-block-manager"))))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Card, {
+    className: "socius-bugme-bar-actions"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.CardBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "action-buttons"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Button, {
+    isPrimary: true,
+    onClick: saveSettings,
+    isBusy: saving,
+    disabled: saving
+  }, saving ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Saving...", "socius-block-manager") : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Save BugMe Bar Settings", "socius-block-manager"))))));
+};
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (BugMeBarTab);
+
+/***/ }),
+
 /***/ "./src/components/PPCTab.js":
 /*!**********************************!*\
   !*** ./src/components/PPCTab.js ***!
@@ -10412,14 +10797,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
-/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
-/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
-/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _SociusFormsTab__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./SociusFormsTab */ "./src/components/SociusFormsTab.js");
-/* harmony import */ var _PPCTab__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./PPCTab */ "./src/components/PPCTab.js");
+/* harmony import */ var _BugMeBar__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./BugMeBar */ "./src/components/BugMeBar.js");
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _SociusFormsTab__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./SociusFormsTab */ "./src/components/SociusFormsTab.js");
+/* harmony import */ var _PPCTab__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./PPCTab */ "./src/components/PPCTab.js");
+
 
 
 
@@ -10427,21 +10814,21 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const SettingsPage = () => {
-  const [settings, setSettings] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)({
+  const [settings, setSettings] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useState)({
     head_js: "",
     body_top_js: "",
     body_bottom_js: "",
     additional_css: ""
   });
-  const [loading, setLoading] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(true);
-  const [saving, setSaving] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
-  const [notice, setNotice] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
-  const [activeTab, setActiveTab] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)("general");
+  const [loading, setLoading] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useState)(true);
+  const [saving, setSaving] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useState)(false);
+  const [notice, setNotice] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useState)(null);
+  const [activeTab, setActiveTab] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useState)("general");
   const {
     ajaxUrl,
     nonce
   } = window.sociusBlockManager || {};
-  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useEffect)(() => {
     loadSettings();
   }, []);
   const loadSettings = async () => {
@@ -10479,18 +10866,18 @@ const SettingsPage = () => {
       if (result.success) {
         setNotice({
           type: "success",
-          message: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Settings saved successfully!", "socius-block-manager")
+          message: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Settings saved successfully!", "socius-block-manager")
         });
       } else {
         setNotice({
           type: "error",
-          message: result.data || (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Failed to save settings", "socius-block-manager")
+          message: result.data || (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Failed to save settings", "socius-block-manager")
         });
       }
     } catch (error) {
       setNotice({
         type: "error",
-        message: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Error saving settings", "socius-block-manager")
+        message: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Error saving settings", "socius-block-manager")
       });
     } finally {
       setSaving(false);
@@ -10505,81 +10892,85 @@ const SettingsPage = () => {
   if (loading) {
     return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
       className: "socius-loading"
-    }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Loading settings...", "socius-block-manager")));
+    }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Loading settings...", "socius-block-manager")));
   }
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "socius-settings-container"
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "socius-settings-header"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h1", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Settings", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Manage global settings for Socius Block Manager.", "socius-block-manager"))), notice && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Notice, {
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h1", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Settings", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Manage global settings for Socius Block Manager.", "socius-block-manager"))), notice && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.Notice, {
     status: notice.type,
     onRemove: () => setNotice(null),
     isDismissible: true
-  }, notice.message), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.TabPanel, {
+  }, notice.message), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.TabPanel, {
     className: "socius-settings-tabs",
     activeClass: "is-active",
     onSelect: tabName => setActiveTab(tabName),
     tabs: [{
       name: "general",
-      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("General", "socius-block-manager"),
+      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("General", "socius-block-manager"),
       className: "tab-general"
     }, {
       name: "forms",
-      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Socius Forms", "socius-block-manager"),
+      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Socius Forms", "socius-block-manager"),
       className: "tab-forms"
     }, {
       name: "scripts",
-      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Scripts", "socius-block-manager"),
+      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Scripts", "socius-block-manager"),
       className: "tab-scripts"
     }, {
       name: "ppc",
-      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("PPC", "socius-block-manager"),
+      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("PPC", "socius-block-manager"),
       className: "tab-ppc"
+    }, {
+      name: "bugmebar",
+      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("BugMe Bar", "socius-block-manager"),
+      className: "tab-bugmebar"
     }]
-  }, tab => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, tab.name === "general" && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Card, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.CardBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h2", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("General Settings", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("General settings will be available here.", "socius-block-manager")))), tab.name === "forms" && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_SociusFormsTab__WEBPACK_IMPORTED_MODULE_4__["default"], null), tab.name === "scripts" && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Card, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.CardBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h2", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Custom Scripts & CSS", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Add custom JavaScript and CSS to your site. These will be output in the appropriate locations on all frontend pages.", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+  }, tab => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, tab.name === "general" && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.Card, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.CardBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h2", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("General Settings", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("General settings will be available here.", "socius-block-manager")))), tab.name === "forms" && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_SociusFormsTab__WEBPACK_IMPORTED_MODULE_5__["default"], null), tab.name === "scripts" && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.Card, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.CardBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h2", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Custom Scripts & CSS", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Add custom JavaScript and CSS to your site. These will be output in the appropriate locations on all frontend pages.", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "scripts-section"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.TextareaControl, {
-    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Head JS", "socius-block-manager"),
-    help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("JavaScript to be added between the <head> tags. Do not include <script> tags.", "socius-block-manager"),
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.TextareaControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Head JS", "socius-block-manager"),
+    help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("JavaScript to be added between the <head> tags. Do not include <script> tags.", "socius-block-manager"),
     value: settings.head_js,
     onChange: value => updateSetting("head_js", value),
     rows: 8,
     className: "code-textarea"
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.TextareaControl, {
-    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Body - Top JS", "socius-block-manager"),
-    help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("JavaScript to be added just after the opening <body> tag. Do not include <script> tags.", "socius-block-manager"),
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.TextareaControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Body - Top JS", "socius-block-manager"),
+    help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("JavaScript to be added just after the opening <body> tag. Do not include <script> tags.", "socius-block-manager"),
     value: settings.body_top_js,
     onChange: value => updateSetting("body_top_js", value),
     rows: 8,
     className: "code-textarea"
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.TextareaControl, {
-    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Body - Bottom JS", "socius-block-manager"),
-    help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("JavaScript to be added just before the closing </body> tag. Do not include <script> tags.", "socius-block-manager"),
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.TextareaControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Body - Bottom JS", "socius-block-manager"),
+    help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("JavaScript to be added just before the closing </body> tag. Do not include <script> tags.", "socius-block-manager"),
     value: settings.body_bottom_js,
     onChange: value => updateSetting("body_bottom_js", value),
     rows: 8,
     className: "code-textarea"
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.TextareaControl, {
-    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Additional CSS", "socius-block-manager"),
-    help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("CSS to be added in the footer, before Body - Bottom JS. Do not include <style> tags.", "socius-block-manager"),
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.TextareaControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Additional CSS", "socius-block-manager"),
+    help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("CSS to be added in the footer, before Body - Bottom JS. Do not include <style> tags.", "socius-block-manager"),
     value: settings.additional_css,
     onChange: value => updateSetting("additional_css", value),
     rows: 8,
     className: "code-textarea"
   })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "scripts-info"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Card, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.CardBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h3", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Output Order", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("ol", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Head JS", "socius-block-manager")), " - ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Inside <head> tags", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Body - Top JS", "socius-block-manager")), " - ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("After opening <body> tag", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Additional CSS", "socius-block-manager")), " - ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Before closing </body> tag", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Body - Bottom JS", "socius-block-manager")), " - ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Before closing </body> tag (after CSS)", "socius-block-manager"))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.Card, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.CardBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h3", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Output Order", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("ol", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Head JS", "socius-block-manager")), " - ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Inside <head> tags", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Body - Top JS", "socius-block-manager")), " - ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("After opening <body> tag", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Additional CSS", "socius-block-manager")), " - ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Before closing </body> tag", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Body - Bottom JS", "socius-block-manager")), " - ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Before closing </body> tag (after CSS)", "socius-block-manager"))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
     className: "warning-text"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Warning:", "socius-block-manager")), " ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Be careful when adding custom scripts. Invalid code can break your site.", "socius-block-manager"))))))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Card, {
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Warning:", "socius-block-manager")), " ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Be careful when adding custom scripts. Invalid code can break your site.", "socius-block-manager"))))))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.Card, {
     className: "socius-settings-actions"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.CardBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.CardBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "action-buttons"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Button, {
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.Button, {
     isPrimary: true,
     onClick: saveSettings,
     isBusy: saving,
     disabled: saving
-  }, saving ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Saving...", "socius-block-manager") : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Save Settings", "socius-block-manager")))))), tab.name === "ppc" && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_PPCTab__WEBPACK_IMPORTED_MODULE_5__["default"], null))));
+  }, saving ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Saving...", "socius-block-manager") : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)("Save Settings", "socius-block-manager")))))), tab.name === "ppc" && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_PPCTab__WEBPACK_IMPORTED_MODULE_6__["default"], null), tab.name === "bugmebar" && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_BugMeBar__WEBPACK_IMPORTED_MODULE_1__["default"], null))));
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (SettingsPage);
 
@@ -11615,6 +12006,181 @@ const ThemeSettingsPage = () => {
   }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Changes apply to all Hero and Showcase blocks.", "socius-block-manager")))))));
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (ThemeSettingsPage);
+
+/***/ }),
+
+/***/ "./src/components/WysiwygEditor.js":
+/*!*****************************************!*\
+  !*** ./src/components/WysiwygEditor.js ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__);
+
+
+
+const WysiwygEditor = ({
+  value,
+  onChange,
+  editorId = "bugme-bar-editor"
+}) => {
+  const editorRef = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useRef)(null);
+  const [isReady, setIsReady] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
+  const [error, setError] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
+  const initAttempts = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useRef)(0);
+  const maxAttempts = 50; // 5 seconds max wait time
+
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
+    let mounted = true;
+    let timeoutId = null;
+    const checkAndInitialize = () => {
+      initAttempts.current++;
+
+      // Check if we've exceeded max attempts
+      if (initAttempts.current > maxAttempts) {
+        if (mounted) {
+          setError((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Editor failed to load. Please refresh the page and try again.", "socius-block-manager"));
+        }
+        return;
+      }
+
+      // Check if wp and wp.editor exist
+      if (typeof window.wp === "undefined" || typeof window.wp.editor === "undefined") {
+        timeoutId = setTimeout(checkAndInitialize, 100);
+        return;
+      }
+
+      // Initialize the editor
+      try {
+        window.wp.editor.initialize(editorId, {
+          tinymce: {
+            wpautop: true,
+            plugins: "charmap colorpicker lists paste tabfocus textcolor fullscreen wordpress wpautoresize wplink",
+            toolbar1: "formatselect bold italic underline | bullist numlist | blockquote | alignleft aligncenter alignright | link unlink | forecolor backcolor | removeformat | fullscreen",
+            toolbar2: "",
+            height: 250,
+            setup: editor => {
+              editor.on("change", () => {
+                if (mounted) {
+                  const content = editor.getContent();
+                  onChange(content);
+                }
+              });
+              editor.on("keyup", () => {
+                if (mounted) {
+                  const content = editor.getContent();
+                  onChange(content);
+                }
+              });
+              editor.on("init", () => {
+                if (mounted) {
+                  editor.setContent(value || "");
+                  setIsReady(true);
+                }
+              });
+            }
+          },
+          quicktags: true,
+          mediaButtons: false
+        });
+      } catch (err) {
+        console.error("Error initializing editor:", err);
+        if (mounted) {
+          setError((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Error initializing editor. Please refresh the page.", "socius-block-manager"));
+        }
+      }
+    };
+
+    // Start the initialization check
+    checkAndInitialize();
+
+    // Cleanup function
+    return () => {
+      mounted = false;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+
+      // Remove the editor
+      if (window.wp && window.wp.editor && window.tinymce) {
+        const editor = window.tinymce.get(editorId);
+        if (editor) {
+          editor.remove();
+        }
+        window.wp.editor.remove(editorId);
+      }
+    };
+  }, [editorId]);
+
+  // Update editor content when value prop changes externally
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
+    if (isReady && window.tinymce) {
+      const editor = window.tinymce.get(editorId);
+      if (editor) {
+        const currentContent = editor.getContent();
+        if (currentContent !== value) {
+          editor.setContent(value || "");
+        }
+      }
+    }
+  }, [value, editorId, isReady]);
+  if (error) {
+    return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      className: "wysiwyg-editor-error"
+    }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
+      style: {
+        color: "#d63638",
+        padding: "10px",
+        background: "#f8d7da",
+        borderRadius: "4px"
+      }
+    }, error), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("textarea", {
+      className: "bugme-bar-textarea-fallback",
+      value: value || "",
+      onChange: e => onChange(e.target.value),
+      rows: 8,
+      placeholder: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Enter your message here...", "socius-block-manager"),
+      style: {
+        width: "100%",
+        padding: "10px",
+        border: "1px solid #ddd",
+        borderRadius: "4px",
+        fontFamily: "inherit",
+        fontSize: "14px",
+        lineHeight: "1.6",
+        resize: "vertical",
+        marginTop: "10px"
+      }
+    }));
+  }
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "wysiwyg-editor-wrapper"
+  }, !isReady && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    style: {
+      padding: "20px",
+      textAlign: "center",
+      color: "#646970"
+    }
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Loading editor...", "socius-block-manager")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("textarea", {
+    ref: editorRef,
+    id: editorId,
+    className: "wp-editor-area",
+    defaultValue: value || "",
+    style: {
+      display: isReady ? "none" : "block"
+    }
+  }));
+};
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (WysiwygEditor);
 
 /***/ }),
 

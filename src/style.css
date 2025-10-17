@@ -1,4 +1,6 @@
 /* Socius Block Manager Styles */
+@import url("./styles/bugmebar.css" );
+@import url("./styles/wysiwyg.css");
 
 /* Common Styles */
 .socius-loading {
@@ -958,7 +960,7 @@
 .socius-settings-tabs .components-button {
     padding: 10px 20px;
     border: none;
-    background: transparent;
+    /* background: transparent; */
     border-bottom: 3px solid transparent;
     transition: all 0.2s;
 }

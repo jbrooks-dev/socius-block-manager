@@ -1,3 +1,192 @@
+/*!***************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./src/styles/bugmebar.css ***!
+  \***************************************************************************/
+/* BugMe Bar Tab Styles */
+.socius-bugme-bar-tab {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.bugme-bar-settings-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.bugme-bar-content-editor {
+    margin: 15px 0;
+}
+
+.bugme-bar-textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.6;
+    resize: vertical;
+}
+
+.bugme-bar-textarea:focus {
+    outline: none;
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+}
+
+.bugme-bar-colors {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin: 15px 0;
+}
+
+.color-control-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.color-control-group label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: #1e1e1e;
+}
+
+.bugme-bar-schedule {
+    margin: 15px 0;
+}
+
+.bugme-bar-schedule h3 {
+    margin: 0 0 10px 0;
+    font-size: 1.1rem;
+}
+
+.date-picker-group {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.date-picker-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.date-picker-field label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: #1e1e1e;
+}
+
+.bugme-bar-preview {
+    border: 2px dashed #ddd;
+    margin-top: 10px;
+}
+
+.socius-bugme-bar-actions {
+    position: sticky;
+    bottom: 20px;
+}
+
+.socius-bugme-bar-actions .action-buttons {
+    display: flex;
+    justify-content: center;
+}
+
+.socius-bugme-bar-actions button {
+    min-width: 200px;
+}
+
+@media (max-width: 768px) {
+    .bugme-bar-colors,
+    .date-picker-group {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* BugMe Bar Alignment Section */
+.bugme-bar-alignment {
+    margin: 15px 0;
+}
+
+/* BugMe Bar Padding Section */
+.bugme-bar-padding {
+    margin: 15px 0;
+}
+
+.bugme-bar-padding h3 {
+    margin: 0 0 10px 0;
+    font-size: 1.1rem;
+}
+
+.padding-controls-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.padding-controls-grid .components-range-control {
+    margin-bottom: 0;
+}
+
+.padding-controls-grid .components-range-control__help {
+    font-weight: 600;
+    color: #2271b1;
+}
+
+@media (max-width: 768px) {
+    .padding-controls-grid {
+        grid-template-columns: 1fr;
+    }
+}
+/*!**************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./src/styles/wysiwyg.css ***!
+  \**************************************************************************/
+/* WYSIWYG Editor Styles */
+.wysiwyg-editor-wrapper {
+    margin-top: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.wysiwyg-editor-wrapper .wp-editor-container {
+    border: none;
+}
+
+.wysiwyg-editor-wrapper .mce-tinymce {
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.wysiwyg-editor-wrapper .mce-toolbar-grp {
+    background: #f5f5f5;
+    border-bottom: 1px solid #ddd;
+}
+
+.wysiwyg-editor-wrapper .mce-edit-area {
+    background: #fff;
+}
+
+.wysiwyg-editor-wrapper iframe {
+    min-height: 250px;
+}
+
+/* Update existing bugme-bar-content-editor */
+.bugme-bar-content-editor {
+    margin: 15px 0;
+}
+
+/* Remove old textarea styles since we're using WYSIWYG now */
+.bugme-bar-textarea {
+    display: none;
+}
 /*!*****************************************************************!*\
   !*** css ./node_modules/css-loader/dist/cjs.js!./src/style.css ***!
   \*****************************************************************/
@@ -961,7 +1150,7 @@
 .socius-settings-tabs .components-button {
     padding: 10px 20px;
     border: none;
-    background: transparent;
+    /* background: transparent; */
     border-bottom: 3px solid transparent;
     transition: all 0.2s;
 }

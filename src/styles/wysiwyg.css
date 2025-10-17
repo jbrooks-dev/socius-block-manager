@@ -1,0 +1,39 @@
+/* WYSIWYG Editor Styles */
+.wysiwyg-editor-wrapper {
+    margin-top: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.wysiwyg-editor-wrapper .wp-editor-container {
+    border: none;
+}
+
+.wysiwyg-editor-wrapper .mce-tinymce {
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.wysiwyg-editor-wrapper .mce-toolbar-grp {
+    background: #f5f5f5;
+    border-bottom: 1px solid #ddd;
+}
+
+.wysiwyg-editor-wrapper .mce-edit-area {
+    background: #fff;
+}
+
+.wysiwyg-editor-wrapper iframe {
+    min-height: 250px;
+}
+
+/* Update existing bugme-bar-content-editor */
+.bugme-bar-content-editor {
+    margin: 15px 0;
+}
+
+/* Remove old textarea styles since we're using WYSIWYG now */
+.bugme-bar-textarea {
+    display: none;
+}

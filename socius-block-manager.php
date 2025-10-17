@@ -69,7 +69,7 @@ class SociusBlockManager {
         add_action('wp_ajax_get_settings', array($this, 'ajax_get_settings'));
         add_action('wp_ajax_save_settings', array($this, 'ajax_save_settings'));
 
-        // Add hooks to output custom scripts and CSS
+        // Hooks to output custom scripts and CSS
         add_action('wp_head', array($this, 'output_head_scripts'), 999);
         add_action('wp_body_open', array($this, 'output_body_top_scripts'), 1);
         add_action('wp_footer', array($this, 'output_additional_css'), 998);
@@ -79,20 +79,28 @@ class SociusBlockManager {
         add_action('wp_ajax_get_socius_form_settings', array($this, 'ajax_get_socius_form_settings'));
         add_action('wp_ajax_regenerate_site_id', array($this, 'ajax_regenerate_site_id'));
 
-        // Add the shortcode and scripts
+        // Shortcode and scripts
         add_action("init", array($this, 'register_form_scripts'));
         add_shortcode('sociusform', array($this, 'display_socius_base_form_root_component'));
 
-        // Add the filter for site ID
+        // Filter for site ID
         add_filter("socius_form_site_id", array($this, 'get_socius_form_site_id'));
 
         // PPC Ajax
         add_action('wp_ajax_get_ppc_settings', array($this, 'ajax_get_ppc_settings'));
         add_action('wp_ajax_save_ppc_settings', array($this, 'ajax_save_ppc_settings'));
 
-        // Add hook to output PPC script in footer
+        // Hook to output PPC script in footer
         add_action('wp_footer', array($this, 'output_ppc_script'), 997);
+
+        // BugMe Bar Ajax handlers
+        add_action('wp_ajax_get_bugme_bar_settings', array($this, 'ajax_get_bugme_bar_settings'));
+        add_action('wp_ajax_save_bugme_bar_settings', array($this, 'ajax_save_bugme_bar_settings'));
         
+        // Hook to output BugMe Bar in header
+        add_action('wp_body_open', array($this, 'output_bugme_bar'), 1);
+        add_action('wp_head', array($this, 'output_bugme_bar_styles'), 999);
+            
         register_activation_hook(__FILE__, array($this, 'activate_plugin'));
     }
     
@@ -480,33 +488,37 @@ class SociusBlockManager {
     }
     
     public function enqueue_admin_scripts($hook) {
-        if (strpos($hook, 'socius-block') === false) {
-            return;
-        }
-        
-        wp_enqueue_script(
-            'socius-block-manager-react',
-            SOCIUS_BLOCK_MANAGER_PLUGIN_URL . 'build/index.js',
-            array('wp-element', 'wp-api-fetch', 'wp-components', 'wp-i18n'),
-            SOCIUS_BLOCK_MANAGER_VERSION,
-            true
-        );
-        
-        wp_enqueue_style(
-            'socius-block-manager-style',
-            SOCIUS_BLOCK_MANAGER_PLUGIN_URL . 'build/style.css',
-            array('wp-components'),
-            SOCIUS_BLOCK_MANAGER_VERSION
-        );
-        
-        wp_localize_script('socius-block-manager-react', 'sociusBlockManager', array(
-            'ajaxUrl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('socius_block_manager_nonce'),
-            'currentPage' => $_GET['page'] ?? '',
-            'userRole' => $this->get_current_user_role(),
-            'canManageRestrictions' => current_user_can('manage_block_restrictions')
-        ));
+    if (strpos($hook, 'socius-block') === false) {
+        return;
     }
+    
+    // Enqueue WordPress editor scripts for WYSIWYG
+    wp_enqueue_editor();
+    wp_enqueue_media();
+    
+    wp_enqueue_script(
+        'socius-block-manager-react',
+        SOCIUS_BLOCK_MANAGER_PLUGIN_URL . 'build/index.js',
+        array('wp-element', 'wp-api-fetch', 'wp-components', 'wp-i18n', 'wp-editor'),
+        SOCIUS_BLOCK_MANAGER_VERSION,
+        true
+    );
+    
+    wp_enqueue_style(
+        'socius-block-manager-style',
+        SOCIUS_BLOCK_MANAGER_PLUGIN_URL . 'build/style.css',
+        array('wp-components'),
+        SOCIUS_BLOCK_MANAGER_VERSION
+    );
+    
+    wp_localize_script('socius-block-manager-react', 'sociusBlockManager', array(
+        'ajaxUrl' => admin_url('admin-ajax.php'),
+        'nonce' => wp_create_nonce('socius_block_manager_nonce'),
+        'currentPage' => $_GET['page'] ?? '',
+        'userRole' => $this->get_current_user_role(),
+        'canManageRestrictions' => current_user_can('manage_block_restrictions')
+    ));
+}
     
     public function render_splash_page() {
         echo '<div id="socius-block-manager-splash"></div>';
@@ -539,6 +551,9 @@ class SociusBlockManager {
             wp_die(__('You do not have sufficient permissions to access this page.'));
         }
         echo '<div id="socius-block-manager-settings"></div>';
+
+        // Add a container for wp_editor to attach to
+        echo '<div id="wp-editor-container" style="display:none;"></div>';
     }
     
     public function render_available_blocks_page() {
@@ -1483,6 +1498,216 @@ class SociusBlockManager {
     }
 
     /* End PPC */
+
+    /* Bug Me Bar */
+    // BugMe Bar Methods
+    public function ajax_get_bugme_bar_settings() {
+        check_ajax_referer('socius_block_manager_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_die('Unauthorized');
+        }
+        
+        $default_settings = array(
+            'enabled' => false,
+            'sticky' => true,
+            'is_header_sticky' => false,
+            'content' => '',
+            'background_color' => '#2271b1',
+            'text_color' => '#ffffff',
+            'schedule_enabled' => false,
+            'start_date' => '',
+            'end_date' => '',
+            'padding_top' => 10,
+            'padding_bottom' => 10,
+            'padding_left' => 10,
+            'padding_right' => 10,
+            'text_align' => 'center',
+        );
+        
+        $settings = get_option('socius_bugme_bar_settings', $default_settings);
+        
+        wp_send_json_success($settings);
+    }
+
+    public function ajax_save_bugme_bar_settings() {
+        check_ajax_referer('socius_block_manager_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_die('Unauthorized');
+        }
+        
+        $settings = json_decode(stripslashes($_POST['settings']), true);
+        
+        $sanitized_settings = array(
+            'enabled' => isset($settings['enabled']) ? (bool)$settings['enabled'] : false,
+            'sticky' => isset($settings['sticky']) ? (bool)$settings['sticky'] : true,
+            'is_header_sticky' => isset($settings['is_header_sticky']) ? (bool)$settings['is_header_sticky'] : false,
+            'content' => isset($settings['content']) ? wp_kses_post($settings['content']) : '',
+            'background_color' => isset($settings['background_color']) ? sanitize_text_field($settings['background_color']) : '#2271b1',
+            'text_color' => isset($settings['text_color']) ? sanitize_text_field($settings['text_color']) : '#ffffff',
+            'schedule_enabled' => isset($settings['schedule_enabled']) ? (bool)$settings['schedule_enabled'] : false,
+            'start_date' => isset($settings['start_date']) ? sanitize_text_field($settings['start_date']) : '',
+            'end_date' => isset($settings['end_date']) ? sanitize_text_field($settings['end_date']) : '',
+            'padding_top' => isset($settings['padding_top']) ? intval($settings['padding_top']) : 10,
+            'padding_bottom' => isset($settings['padding_bottom']) ? intval($settings['padding_bottom']) : 10,
+            'padding_left' => isset($settings['padding_left']) ? intval($settings['padding_left']) : 10,
+            'padding_right' => isset($settings['padding_right']) ? intval($settings['padding_right']) : 10,
+            'text_align' => isset($settings['text_align']) ? sanitize_text_field($settings['text_align']) : 'center',
+        );
+        
+        if (update_option('socius_bugme_bar_settings', $sanitized_settings)) {
+            wp_send_json_success(__('BugMe Bar settings saved successfully!', 'socius-block-manager'));
+        } else {
+            wp_send_json_error(__('Failed to save BugMe Bar settings', 'socius-block-manager'));
+        }
+    }
+
+
+    private function should_display_bugme_bar() {
+        $settings = get_option('socius_bugme_bar_settings', array('enabled' => false));
+        
+        if (!$settings['enabled']) {
+            return false;
+        }
+        
+        // Only check date range if schedule is enabled
+        if (!empty($settings['schedule_enabled'])) {
+            // Check date range if either date is set
+            if (!empty($settings['start_date']) || !empty($settings['end_date'])) {
+                $current_time = current_time('timestamp');
+                
+                if (!empty($settings['start_date'])) {
+                    $start_time = strtotime($settings['start_date']);
+                    if ($current_time < $start_time) {
+                        return false;
+                    }
+                }
+                
+                if (!empty($settings['end_date'])) {
+                    $end_time = strtotime($settings['end_date']);
+                    if ($current_time > $end_time) {
+                        return false;
+                    }
+                }
+            }
+        }
+        // If schedule_enabled is false, ignore any dates and always show (when enabled)
+        
+        return true;
+    }
+
+    public function output_bugme_bar() {
+        if (!$this->should_display_bugme_bar()) {
+            return;
+        }
+        
+        $settings = get_option('socius_bugme_bar_settings');
+        
+        if (empty($settings['content'])) {
+            return;
+        }
+        
+        $sticky_class = $settings['sticky'] ? 'socius-bugme-bar-sticky' : '';
+        $padding = sprintf(
+            '%dpx %dpx %dpx %dpx',
+            $settings['padding_top'],
+            $settings['padding_right'],
+            $settings['padding_bottom'],
+            $settings['padding_left']
+        );
+        
+        ?>
+        <div id="socius-bugme-bar" class="socius-bugme-bar <?php echo esc_attr($sticky_class); ?>" 
+            style="background-color: <?php echo esc_attr($settings['background_color']); ?>; color: <?php echo esc_attr($settings['text_color']); ?>; padding: <?php echo esc_attr($padding); ?>;">
+            <div class="socius-bugme-bar-content" style="text-align: <?php echo esc_attr($settings['text_align']); ?>;">
+                <?php echo wp_kses_post($settings['content']); ?>
+            </div>
+        </div>
+        <?php
+    }
+
+    public function output_bugme_bar_styles() {
+        if (!$this->should_display_bugme_bar()) {
+            return;
+        }
+        
+        $settings = get_option('socius_bugme_bar_settings');
+        
+        ?>
+        <style id="socius-bugme-bar-styles">
+            .socius-bugme-bar {
+                width: 100%;
+                padding: 15px 20px;
+                text-align: center;
+                z-index: 9999;
+                transition: transform 0.3s ease;
+            }
+            
+            .socius-bugme-bar-sticky {
+                position: fixed;
+                top: 0;
+                left: 0;
+            }
+            
+            .socius-bugme-bar-content {
+                max-width: 1200px;
+                margin: 0 auto;
+                line-height: 1.6;
+            }
+            
+            .socius-bugme-bar-content a {
+                color: inherit;
+                text-decoration: underline;
+            }
+            
+            .socius-bugme-bar-content a:hover {
+                text-decoration: none;
+            }
+            
+            /* Add padding to body when bar is sticky */
+            <?php if ($settings['sticky']): ?>
+            body {
+                padding-top: var(--bugme-bar-height, 60px);
+            }
+            <?php endif; ?>
+            
+            /* Add padding to header if it's sticky */
+            <?php if ($settings['is_header_sticky']): ?>
+            body > header,
+            body > .site-header,
+            body header.header {
+                padding-top: var(--bugme-bar-height, 60px);
+            }
+            <?php endif; ?>
+            
+            /* Calculate actual height dynamically */
+            @media screen {
+                :root {
+                    --bugme-bar-height: 60px;
+                }
+            }
+        </style>
+        <script>
+            // Calculate and set actual BugMe Bar height
+            document.addEventListener('DOMContentLoaded', function() {
+                const bugmeBar = document.getElementById('socius-bugme-bar');
+                if (bugmeBar) {
+                    const height = bugmeBar.offsetHeight;
+                    document.documentElement.style.setProperty('--bugme-bar-height', height + 'px');
+                    
+                    // Recalculate on window resize
+                    window.addEventListener('resize', function() {
+                        const newHeight = bugmeBar.offsetHeight;
+                        document.documentElement.style.setProperty('--bugme-bar-height', newHeight + 'px');
+                    });
+                }
+            });
+        </script>
+        <?php
+    }
+
+    /* End Bug Me Bar */
 }
 
 // Initialize the plugin
